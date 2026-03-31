@@ -1,8 +1,12 @@
-#app {
-  display: flex;
-  flex-direction: column;
+.app-shell {
   min-height: 100vh;
+  background-color: var(--neo-bg);
+  overflow-x: hidden;
 }
 
-.main-content {
-  flex: 1;\n  padding: 0;\n  box-sizing: border-box;\n  width: 100%;\n  display: flex;\n  flex-direction: column;\n  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);\n  background-attachment: fixed;\n}
+.app-main {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2.5rem;
+  overflow-x: hidden;
+}

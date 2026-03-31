@@ -1,0 +1,32 @@
+.sort-panel {
+  border: 4px solid var(--neo-fg);
+  box-shadow: var(--neo-shadow-md);
+  background: var(--neo-white);
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.sort-panel h2 {
+  font-size: 1rem;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+.sort-panel label {
+  display: grid;
+  gap: 0.3rem;
+  font-weight: 700;
+}
+
+.sort-panel select {
+  height: 2.7rem;
+  border: 3px solid var(--neo-fg);
+  background: var(--neo-secondary);
+  font-weight: 700;
+  padding: 0 0.55rem;
+}
+
+.sort-panel.mobile {
+  margin-bottom: 0.8rem;
+}

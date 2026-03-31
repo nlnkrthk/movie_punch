@@ -1,104 +1,134 @@
 .home {
-  padding: 3rem 0;
-  width: 100%;
-  box-sizing: border-box;
-  min-height: calc(100vh - 70px);
+  padding: 1.2rem 0 2rem;
+}
+
+.home-hero {
+  border: 4px solid var(--neo-fg);
+  box-shadow: var(--neo-shadow-lg);
+  background-color: var(--neo-muted);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transform: rotate(-1deg);
+}
+
+.hero-kicker {
+  display: inline-block;
+  border: 4px solid var(--neo-fg);
+  background-color: var(--neo-secondary);
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  box-shadow: var(--neo-shadow-sm);
+  margin-bottom: 0.8rem;
+}
+
+.hero-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: clamp(1.7rem, 4vw, 3.5rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.hero-title span {
+  border: 4px solid var(--neo-fg);
+  background-color: var(--neo-white);
+  box-shadow: var(--neo-shadow-sm);
+  padding: 0.25rem 0.55rem;
+  font-weight: 900;
+}
+
+.hero-title span:nth-child(2) {
+  background-color: var(--neo-accent);
+  transform: rotate(2deg);
+}
+
+.hero-title span:nth-child(3) {
+  background-color: var(--neo-secondary);
+  transform: rotate(-2deg);
 }
 
 .search-form {
-  max-width: 700px;
-  margin: 0 auto 3rem;
-  display: flex;
-  gap: 1rem;
-  padding: 0 1.5rem;
-  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  margin: 1rem 0;
 }
 
 .search-input {
-  flex: 1;
-  padding: 0.9rem 1.2rem;
-  border: 2px solid rgba(0, 212, 255, 0.2);
-  border-radius: 8px;
-  background: rgba(26, 26, 46, 0.8);
-  color: rgba(255, 255, 255, 0.95);
-  font-size: 1rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
+  height: 3.4rem;
+  border: 4px solid var(--neo-fg);
+  background: var(--neo-white);
+  color: var(--neo-fg);
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 0.8rem 1rem;
+  box-shadow: var(--neo-shadow-sm);
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: #00000099;
 }
 
-.search-input:focus {
+.search-input:focus-visible {
   outline: none;
-  border-color: #00d4ff;
-  background: rgba(26, 26, 46, 1);
-  box-shadow: 0 0 20px rgba(0, 212, 255, 0.3), inset 0 0 10px rgba(0, 212, 255, 0.1);
+  background: var(--neo-secondary);
 }
 
 .search-button {
-  padding: 0.9rem 2.5rem;
-  background: linear-gradient(135deg, #00d4ff, #00f0ff);
-  color: #0f0f0f;
-  border-radius: 8px;
-  border: none;
-  font-weight: 700;
-  font-size: 1rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
-  cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+  border: 4px solid var(--neo-fg);
+  background: var(--neo-accent);
+  color: var(--neo-fg);
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
+  height: 3.4rem;
+  padding: 0 1rem;
+  box-shadow: var(--neo-shadow-sm);
+  transition: transform 120ms linear, box-shadow 120ms linear, background-color 120ms linear;
 }
 
 .search-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 30px rgba(0, 212, 255, 0.5);
+  background: var(--neo-secondary);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 #000000;
 }
 
 .search-button:active {
-  transform: translateY(-1px);
-}
-
-@media (max-width: 639px) {
-  .home {
-    padding: 1.5rem 0;
-  }
-
-  .search-form {
-    gap: 0.8rem;
-    margin-bottom: 1.5rem;
-    padding: 0 1rem;
-  }
-
-  .search-button {
-    padding: 0.9rem 1.5rem;
-    font-size: 0.9rem;
-  }
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
 
 .movies-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 160px);
-  gap: 1.2rem;
-  padding: 2rem 1.5rem;
-  width: fit-content;
-  max-width: calc(100% - 3rem);
-  margin: 0 auto;
-  box-sizing: border-box;
-  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  justify-content: center;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+.loading,
+.error-message {
+  border: 4px solid var(--neo-fg);
+  box-shadow: var(--neo-shadow-md);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.9rem;
+  margin-top: 0.8rem;
+}
+
+.loading {
+  background: var(--neo-secondary);
+}
+
+.error-message {
+  background: var(--neo-accent);
+}
+
+@media (max-width: 640px) {
+  .search-form {
+    grid-template-columns: 1fr;
   }
 }

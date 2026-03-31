@@ -45,6 +45,14 @@ function Home() {
 
   return (
     <div className="home">
+      <header className="home-hero neo-texture">
+        <p className="hero-kicker">Now playing chaos</p>
+        <h1 className="hero-title">
+          <span>FIND</span>
+          <span>YOUR NEXT</span>
+          <span>MOVIE</span>
+        </h1>
+      </header>
       <form onSubmit={handleSearch} className="search-form">
         <input
           type="text"

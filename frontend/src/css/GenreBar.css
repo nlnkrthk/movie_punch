@@ -1,0 +1,70 @@
+.genrebar-shell {
+  position: relative;
+  border: 4px solid var(--neo-fg);
+  box-shadow: var(--neo-shadow-sm);
+  background: var(--neo-bg);
+  padding: 0.5rem 0.6rem;
+  overflow: hidden; /* creates the “limit/border” you asked for */
+}
+
+.genrebar-wrap {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+  scroll-behavior: smooth;
+}
+
+.genrebar-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 44px;
+  z-index: 5;
+}
+
+.genrebar-edge.left {
+  left: 0;
+}
+
+.genrebar-edge.right {
+  right: 0;
+}
+
+.genrebar-edge.left::before,
+.genrebar-edge.right::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.genrebar-edge.left::before {
+  background: linear-gradient(to right, var(--neo-bg), transparent);
+}
+
+.genrebar-edge.right::before {
+  background: linear-gradient(to left, var(--neo-bg), transparent);
+}
+
+.genre-pill {
+  border: 3px solid var(--neo-fg);
+  background: var(--neo-white);
+  box-shadow: var(--neo-shadow-sm);
+  padding: 0.35rem 0.6rem;
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  transition: transform 120ms linear, box-shadow 120ms linear, background-color 120ms linear;
+}
+
+.genre-pill.active {
+  background: var(--neo-accent);
+}
+
+.genre-pill:hover {
+  background: var(--neo-muted);
+  transform: translate(-2px, -2px);
+}

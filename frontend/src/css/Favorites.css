@@ -1,62 +1,63 @@
 .favorites {
-  padding: 3rem 2rem;
-  width: 100%;
-  box-sizing: border-box;
-  min-height: calc(100vh - 70px);
+  padding: 0.5rem 0 1.5rem;
+}
+
+.favorites-header {
+  border: 4px solid var(--neo-fg);
+  background: var(--neo-accent);
+  box-shadow: var(--neo-shadow-lg);
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+  transform: rotate(1deg);
 }
 
 .favorites h2 {
-  margin-bottom: 3rem;
-  text-align: center;
-  font-size: 2.8rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #00d4ff, #ff006e);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: none;
-  letter-spacing: 1px;
+  font-size: clamp(1.6rem, 5vw, 2.8rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.favorites-header p {
+  display: inline-block;
+  margin-top: 0.35rem;
+  border: 4px solid var(--neo-fg);
+  background: var(--neo-secondary);
+  padding: 0.2rem 0.55rem;
+  box-shadow: var(--neo-shadow-sm);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
 }
 
 .favorites-empty {
   text-align: center;
-  padding: 5rem 2.5rem;
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(255, 0, 110, 0.05));
-  border-radius: 16px;
-  margin: 3rem auto;
-  max-width: 600px;
-  border: 2px solid rgba(0, 212, 255, 0.2);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  padding: 2rem 1.2rem;
+  border: 4px solid var(--neo-fg);
+  box-shadow: var(--neo-shadow-lg);
+  background-color: var(--neo-muted);
+  max-width: 760px;
+  margin: 2rem auto 0;
 }
 
-.favorites-empty h3 {
-  margin-bottom: 1.5rem;
-  font-size: 2rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #ff006e, #ff4d7d);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.favorites-empty h2 {
+  font-size: clamp(1.6rem, 4vw, 2.5rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
 }
 
 .favorites-empty p {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 1.1rem;
-  line-height: 1.8;
-  font-weight: 500;
-}
-
-.favorites-empty p strong {
-  color: #00d4ff;
+  font-size: 1.05rem;
+  line-height: 1.35;
   font-weight: 700;
 }
 
-/* Animation for new favorites being added */
 @keyframes fadeInScale {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.9);
+    transform: translateY(10px) scale(0.97);
   }
   to {
     opacity: 1;
@@ -65,7 +66,7 @@
 }
 
 .movies-grid > * {
-  animation: fadeInScale 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: fadeInScale 0.18s linear forwards;
 }
 
 .movies-grid > *:nth-child(1) { animation-delay: 0.05s; }

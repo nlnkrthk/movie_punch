@@ -1,0 +1,28 @@
+.favorites-page {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.favorites-page h2 {
+  text-transform: uppercase;
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.favorites-page-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.favorites-page-empty {
+  border: 4px solid var(--neo-fg);
+  box-shadow: var(--neo-shadow-md);
+  background: var(--neo-muted);
+  padding: 1rem;
+}
+
+.favorites-page-empty h2 {
+  text-transform: uppercase;
+  font-weight: 900;
+  margin-bottom: 0.4rem;
+}

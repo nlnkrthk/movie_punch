@@ -1,0 +1,14 @@
+.homepage {
+  display: grid;
+  gap: 0.9rem;
+  overflow-x: hidden;
+}
+
+.homepage-loading {
+  border: 4px solid var(--neo-fg);
+  box-shadow: var(--neo-shadow-sm);
+  background: var(--neo-secondary);
+  padding: 0.6rem;
+  text-transform: uppercase;
+  font-weight: 900;
+}

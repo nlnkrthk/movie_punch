@@ -1,0 +1,101 @@
+.movie-carousel-shell {
+  position: relative;
+  margin-top: 1.2rem;
+  /* Reserve space so arrows can sit “outside” the box
+     without pushing the page wider. */
+  padding: 0 3.8rem;
+  max-width: 100%;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.movie-carousel {
+  margin-top: 0;
+  border: 4px solid var(--neo-fg);
+  box-shadow: var(--neo-shadow-md);
+  background: var(--neo-white);
+  padding: 0.8rem;
+  overflow: hidden; /* hard limit/border for track */
+  width: 100%;
+  min-width: 0;
+}
+
+.movie-carousel-title {
+  font-size: 1.35rem;
+  text-transform: uppercase;
+  font-weight: 900;
+  margin: 0 0 0.7rem 0;
+}
+
+.movie-carousel-viewport {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-width: 0;
+}
+
+.movie-carousel-viewport::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 12px;
+  background: var(--neo-white);
+  pointer-events: none;
+}
+
+.carousel-arrow-inner {
+  display: none;
+}
+
+.carousel-arrow {
+  width: 46px;
+  height: 46px;
+  border: 4px solid var(--neo-fg);
+  background: var(--neo-secondary);
+  box-shadow: var(--neo-shadow-sm);
+  font-weight: 900;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 120ms linear, box-shadow 120ms linear, background-color 120ms linear;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.carousel-arrow.left {
+  left: 0.55rem;
+}
+
+.carousel-arrow.right {
+  right: 0.55rem;
+}
+
+.carousel-arrow:hover {
+  background: var(--neo-muted);
+  transform: translateY(calc(-50% - 2px));
+  box-shadow: 6px 6px 0 0 #000000;
+}
+
+.carousel-arrow:active {
+  transform: translateY(calc(-50% + 2px));
+  box-shadow: none;
+}
+
+.movie-carousel-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(200px, 230px);
+  gap: 0.8rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0.8rem; /* makes the right edge feel “closed” */
+}

@@ -1,0 +1,26 @@
+.searchbar-wrap {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.searchbar-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.searchbar-input {
+  height: 3.2rem;
+  border: 4px solid var(--neo-fg);
+  background: var(--neo-white);
+  padding: 0 0.85rem;
+  box-shadow: var(--neo-shadow-sm);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.searchbar-input:focus-visible {
+  outline: none;
+  background: var(--neo-secondary);
+}

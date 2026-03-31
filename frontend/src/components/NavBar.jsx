@@ -1,14 +1,24 @@
-import { Link } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import '../css/NavBar.css'
 function NavBar() {
+  const { pathname } = useLocation();
+  const accountActive = pathname === "/signin" || pathname === "/signup";
+
+  const navClassName = ({ isActive }) =>
+    `nav-link${isActive ? " active" : ""}`;
+
   return (
     <nav className="navbar">
-      <div className="navbar-logo">
-        <Link to="/">MovieApp</Link>
+      <div className="navbar-logo sticker-left">
+        <Link to="/">Movie Punch</Link>
       </div>
       <div className="navbar-links">
-        <Link to="/" className="nav-link">Home</Link>
-        <Link to="/favorites" className="nav-link">Favorites</Link>
+        <NavLink to="/home" className={navClassName}>Home</NavLink>
+        <NavLink to="/" end className={navClassName}>Explore</NavLink>
+        <NavLink to="/favorites" className={navClassName}>Favorites</NavLink>
+        <NavLink to="/signin" className={`nav-link${accountActive ? " active" : ""}`}>
+          Account
+        </NavLink>
       </div>
     </nav>
   );
