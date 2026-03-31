@@ -1,0 +1,8 @@
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;\n  padding: 0;\n  box-sizing: border-box;\n  width: 100%;\n  display: flex;\n  flex-direction: column;\n  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);\n  background-attachment: fixed;\n}
