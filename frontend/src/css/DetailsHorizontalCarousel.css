@@ -1,0 +1,82 @@
+.details-h-carousel-shell {
+  position: relative;
+  margin-top: 1rem;
+  padding: 0 3.8rem;
+  max-width: 100%;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.details-h-carousel {
+  margin-top: 0;
+  border: 4px solid var(--neo-fg);
+  box-shadow: var(--neo-shadow-md);
+  background: var(--neo-white);
+  padding: 0.8rem;
+  overflow: hidden;
+  width: 100%;
+  min-width: 0;
+}
+
+.details-h-title {
+  font-size: 1.35rem;
+  text-transform: uppercase;
+  font-weight: 900;
+  margin: 0 0 0.7rem 0;
+}
+
+.details-h-viewport {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-width: 0;
+}
+
+.details-h-track {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+  scroll-behavior: smooth;
+  max-width: 100%;
+}
+
+.details-h-item {
+  flex: 0 0 auto;
+}
+
+.details-h-arrow {
+  width: 46px;
+  height: 46px;
+  border: 4px solid var(--neo-fg);
+  background: var(--neo-secondary);
+  box-shadow: var(--neo-shadow-sm);
+  font-weight: 900;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.details-h-arrow.left {
+  left: 0.55rem;
+}
+
+.details-h-arrow.right {
+  right: 0.55rem;
+}
+
+.details-h-arrow:hover {
+  background: var(--neo-muted);
+  transform: translateY(calc(-50% - 2px));
+}
+
+.details-h-arrow:active {
+  transform: translateY(calc(-50% + 2px));
+  box-shadow: none;
+}

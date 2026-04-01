@@ -1,8 +1,10 @@
 import { useMovieContext } from "../context/MovieContext"
+import { useNavigate } from "react-router-dom"
 import "../css/MovieListItem.css"
 
-function MovieListItem({ movie }) {
+function MovieListItem({ movie, onOpenDetails }) {
   const { addToFavorites, removeFromFavorites, isFavorite } = useMovieContext()
+  const navigate = useNavigate()
   const favorited = isFavorite(movie.id)
   const year = movie.release_date ? new Date(movie.release_date).getFullYear() : "N/A"
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"
@@ -10,8 +12,27 @@ function MovieListItem({ movie }) {
     ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
     : "https://via.placeholder.com/300x450?text=No+Poster"
 
+  function openDetails() {
+    if (typeof onOpenDetails === "function") {
+      onOpenDetails(movie)
+      return
+    }
+    navigate(`/movie/${movie.id}`)
+  }
+
   return (
-    <article className="movie-list-item">
+    <article
+      className="movie-list-item movie-list-item-clickable"
+      role="button"
+      tabIndex={0}
+      onClick={openDetails}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          openDetails()
+        }
+      }}
+    >
       <img src={poster} alt={movie.title} loading="lazy" className="movie-list-poster" />
       <div className="movie-list-content">
         <h3>
@@ -22,7 +43,10 @@ function MovieListItem({ movie }) {
         <button
           type="button"
           className={`movie-list-fav ${favorited ? "active" : ""}`}
-          onClick={() => (favorited ? removeFromFavorites(movie.id) : addToFavorites(movie))}
+          onClick={(e) => {
+            e.stopPropagation()
+            favorited ? removeFromFavorites(movie.id) : addToFavorites(movie)
+          }}
           aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
         >
           {favorited ? "♥ Favorited" : "♡ Favorite"}

@@ -11,6 +11,15 @@
   border-radius: 16px;
 }
 
+.movie-card-clickable {
+  cursor: pointer;
+}
+
+.movie-card-clickable:focus-visible {
+  outline: 4px solid var(--neo-fg);
+  outline-offset: 3px;
+}
+
 .movie-card:hover {
   transform: translateY(-6px) rotate(-1deg);
   box-shadow: var(--neo-shadow-lg);

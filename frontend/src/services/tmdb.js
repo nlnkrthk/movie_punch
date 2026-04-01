@@ -58,3 +58,16 @@ export const getTrendingMovies = () => request("/trending/movie/day")
 export const getTopRatedMovies = () => request("/movie/top_rated")
 export const getUpcomingMovies = () => request("/movie/upcoming")
 
+export const getMovieDetails = (movieId) =>
+  request(`/movie/${movieId}`, { append_to_response: "credits,videos" })
+
+export const getSimilarMovies = (movieId, page = 1) =>
+  request(`/movie/${movieId}/similar`, { page })
+
+// Placeholder for backend integration:
+// export const getMovieDetailsFromBackend = async (movieId) => {
+//   const res = await fetch(`/api/movies/${movieId}`)
+//   if (!res.ok) throw new Error("Failed to load movie details")
+//   return res.json()
+// }
+

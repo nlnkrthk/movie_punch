@@ -1,8 +1,10 @@
 import "../css/MovieCard.css"
 import { useMovieContext } from "../context/MovieContext"
+import { useNavigate } from "react-router-dom"
 
-function MovieCard({ movie }) {
+function MovieCard({ movie, onOpenDetails }) {
   const { addToFavorites, removeFromFavorites, isFavorite } = useMovieContext()
+  const navigate = useNavigate()
   const favorited = isFavorite(movie.id)
 
   const posterUrl = movie.poster_path
@@ -23,8 +25,27 @@ function MovieCard({ movie }) {
     }
   }
 
+  function openDetails() {
+    if (typeof onOpenDetails === "function") {
+      onOpenDetails(movie)
+      return
+    }
+    navigate(`/movie/${movie.id}`)
+  }
+
   return (
-    <article className="movie-card">
+    <article
+      className="movie-card movie-card-clickable"
+      role="button"
+      tabIndex={0}
+      onClick={openDetails}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          openDetails()
+        }
+      }}
+    >
       <img src={posterUrl} alt={movie.title} loading="lazy" className="movie-poster" />
       <div className="movie-info">
         <h3 className="movie-title">{movie.title || "Unknown Title"}</h3>

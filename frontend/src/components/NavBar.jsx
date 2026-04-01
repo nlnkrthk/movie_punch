@@ -13,8 +13,8 @@ function NavBar() {
         <Link to="/">Movie Punch</Link>
       </div>
       <div className="navbar-links">
-        <NavLink to="/home" className={navClassName}>Home</NavLink>
-        <NavLink to="/" end className={navClassName}>Explore</NavLink>
+        <NavLink to="/" end className={navClassName}>Home</NavLink>
+        <NavLink to="/explore" className={navClassName}>Explore</NavLink>
         <NavLink to="/favorites" className={navClassName}>Favorites</NavLink>
         <NavLink to="/signin" className={`nav-link${accountActive ? " active" : ""}`}>
           Account

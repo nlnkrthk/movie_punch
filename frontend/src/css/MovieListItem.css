@@ -8,6 +8,15 @@
   padding: 0.7rem;
 }
 
+.movie-list-item-clickable {
+  cursor: pointer;
+}
+
+.movie-list-item-clickable:focus-visible {
+  outline: 4px solid var(--neo-fg);
+  outline-offset: 3px;
+}
+
 .movie-list-poster {
   width: 100%;
   height: 200px;
