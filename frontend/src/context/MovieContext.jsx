@@ -2,72 +2,15 @@
 import {
   createContext,
   useContext,
+  useState,
+  useEffect,
   useMemo,
   useCallback,
-  useSyncExternalStore,
 } from "react"
+import axios from "axios"
+import { useAuth } from "./AuthContext"
 
-const STORAGE_KEY = "favorites"
-
-function parseStored() {
-  try {
-    if (typeof window === "undefined" || typeof localStorage === "undefined") {
-      return []
-    }
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return []
-    const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed : []
-  } catch {
-    return []
-  }
-}
-
-let cachedFavorites = parseStored()
-
-function getSnapshot() {
-  return cachedFavorites
-}
-
-function getServerSnapshot() {
-  return []
-}
-
-function subscribe(callback) {
-  const onStorage = (e) => {
-    if (e.key === STORAGE_KEY) {
-      cachedFavorites = parseStored()
-      callback()
-    }
-  }
-  const onLocal = () => callback()
-  window.addEventListener("storage", onStorage)
-  window.addEventListener("favorites-changed", onLocal)
-  return () => {
-    window.removeEventListener("storage", onStorage)
-    window.removeEventListener("favorites-changed", onLocal)
-  }
-}
-
-function persistFavorites(next) {
-  cachedFavorites = next
-  try {
-    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cachedFavorites))
-    }
-  } catch {
-    /* quota / private mode */
-  }
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new Event("favorites-changed"))
-  }
-}
-
-function setFavorites(updater) {
-  const next = typeof updater === "function" ? updater(cachedFavorites) : updater
-  if (next === cachedFavorites) return
-  persistFavorites(next)
-}
+const API_URL = "http://localhost:5000/api/favorites"
 
 const MovieContext = createContext(null)
 
@@ -79,30 +22,84 @@ export const useMovieContext = () => {
   return ctx
 }
 
-function sameMovieId(a, b) {
-  return String(a) === String(b)
-}
-
 export const MovieProvider = ({ children }) => {
-  const favorites = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+  const { token, isLoggedIn } = useAuth()
+  const [favorites, setFavorites] = useState([])
 
-  const addToFavorites = useCallback((movie) => {
-    if (movie == null || movie.id == null) return
-    setFavorites((prev) => {
-      if (prev.some((fav) => sameMovieId(fav.id, movie.id))) return prev
-      return [...prev, movie]
-    })
-  }, [])
+  // Fetch favorites from backend when token changes (login / logout / switch account)
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setFavorites([])
+      return
+    }
 
-  const removeFromFavorites = useCallback((movieId) => {
-    if (movieId == null) return
-    setFavorites((prev) => prev.filter((m) => !sameMovieId(m.id, movieId)))
-  }, [])
+    let cancelled = false
+
+    async function fetchFavorites() {
+      try {
+        const res = await axios.get(API_URL, {
+          headers: { Authorization: token },
+        })
+        if (!cancelled) {
+          setFavorites(res.data)
+        }
+      } catch {
+        if (!cancelled) setFavorites([])
+      }
+    }
+
+    fetchFavorites()
+    return () => { cancelled = true }
+  }, [token, isLoggedIn])
+
+  const addToFavorites = useCallback(
+    async (movie) => {
+      if (!movie || movie.id == null || !isLoggedIn) return
+      // Optimistic update
+      setFavorites((prev) => {
+        if (prev.some((f) => String(f.movieId) === String(movie.id))) return prev
+        return [...prev, { movieId: movie.id, movieData: movie }]
+      })
+      try {
+        await axios.post(
+          API_URL,
+          { movieId: movie.id },
+          { headers: { Authorization: token } }
+        )
+      } catch {
+        // Revert on failure
+        setFavorites((prev) => prev.filter((f) => String(f.movieId) !== String(movie.id)))
+      }
+    },
+    [token, isLoggedIn]
+  )
+
+  const removeFromFavorites = useCallback(
+    async (movieId) => {
+      if (movieId == null || !isLoggedIn) return
+      // Optimistic update
+      setFavorites((prev) => prev.filter((f) => String(f.movieId) !== String(movieId)))
+      try {
+        await axios.delete(`${API_URL}/${movieId}`, {
+          headers: { Authorization: token },
+        })
+      } catch {
+        // Re-fetch on failure to restore correct state
+        try {
+          const res = await axios.get(API_URL, {
+            headers: { Authorization: token },
+          })
+          setFavorites(res.data)
+        } catch { /* silent */ }
+      }
+    },
+    [token, isLoggedIn]
+  )
 
   const isFavorite = useCallback(
     (movieId) => {
       if (movieId == null) return false
-      return favorites.some((m) => sameMovieId(m.id, movieId))
+      return favorites.some((f) => String(f.movieId) === String(movieId))
     },
     [favorites]
   )

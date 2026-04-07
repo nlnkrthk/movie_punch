@@ -64,10 +64,5 @@ export const getMovieDetails = (movieId) =>
 export const getSimilarMovies = (movieId, page = 1) =>
   request(`/movie/${movieId}/similar`, { page })
 
-// Placeholder for backend integration:
-// export const getMovieDetailsFromBackend = async (movieId) => {
-//   const res = await fetch(`/api/movies/${movieId}`)
-//   if (!res.ok) throw new Error("Failed to load movie details")
-//   return res.json()
-// }
-
+export const getWatchProviders = (movieId) =>
+  request(`/movie/${movieId}/watch/providers`)

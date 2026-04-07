@@ -1,19 +1,81 @@
 import "../css/Auth.css";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import axios from "axios";
 
 function SignIn() {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.id.replace("signin-", "")]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        formData
+      );
+
+      alert(res.data.message);
+    } catch (error) {
+      alert(error.response?.data?.message || "Error");
+    }
+  };
+
   return (
     <section className="auth-page">
-      <div className="auth-card neo-texture">
-        <h1>Sign In</h1>
-        <p>Welcome back. Pick up your movie watchlist where you left off.</p>
+      <div className="auth-card">
+        <span className="auth-badge">Welcome Back</span>
 
-        <form className="auth-form" onSubmit={(e) => e.preventDefault()}>
-          <label htmlFor="signin-email">Email</label>
-          <input id="signin-email" type="email" placeholder="you@example.com" required />
+        <div className="auth-heading-wrap">
+          <h1>
+            Sign{" "}
+            <span className="auth-heading-accent">In</span>
+          </h1>
+        </div>
 
-          <label htmlFor="signin-password">Password</label>
-          <input id="signin-password" type="password" placeholder="********" required />
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="auth-field">
+            <label htmlFor="signin-email">Email</label>
+            <input
+              id="signin-email"
+              type="email"
+              placeholder="you@example.com"
+              required
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="auth-field">
+            <label htmlFor="signin-password">Password</label>
+            <div className="password-field">
+              <input
+                id="signin-password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                required
+                onChange={handleChange}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+          </div>
 
           <button type="submit">Sign In</button>
         </form>

@@ -1,10 +1,14 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useCallback } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { useMovieContext } from "../context/MovieContext"
-import { getMovieDetails, getSimilarMovies } from "../services/tmdb"
+import { useAuth } from "../context/AuthContext"
+import { getMovieDetails, getSimilarMovies, getWatchProviders } from "../services/tmdb"
 import DetailsHorizontalCarousel from "../components/DetailsHorizontalCarousel"
 import MovieCarousel from "../components/MovieCarousel"
+import axios from "axios"
 import "../css/MovieDetailsPage.css"
+
+const API_BASE = "http://localhost:5000/api"
 
 function pickCrew(credits, jobs) {
   const crew = credits?.crew || []
@@ -22,28 +26,109 @@ function uniqueNames(people) {
     .map((p) => p.name)
 }
 
+function StarRatingInput({ value, onChange }) {
+  const [hover, setHover] = useState(0)
+  return (
+    <div className="star-rating-input" role="radiogroup" aria-label="Rating">
+      {Array.from({ length: 10 }, (_, i) => i + 1).map((star) => (
+        <button
+          key={star}
+          type="button"
+          className={`star-btn ${star <= (hover || value) ? "star-filled" : ""}`}
+          onClick={() => onChange(star)}
+          onMouseEnter={() => setHover(star)}
+          onMouseLeave={() => setHover(0)}
+          aria-label={`${star} out of 10`}
+        >
+          ★
+        </button>
+      ))}
+      <span className="star-rating-value">{value > 0 ? `${value}/10` : "—/10"}</span>
+    </div>
+  )
+}
+
+function ReviewCard({ review, currentUserId, onDelete }) {
+  const userName = review.userId?.name || "Anonymous"
+  const date = new Date(review.createdAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  })
+  const isOwn = currentUserId && review.userId?._id === currentUserId
+
+  return (
+    <article className="review-card">
+      <div className="review-card-header">
+        <div className="review-card-avatar">
+          {userName.charAt(0).toUpperCase()}
+        </div>
+        <div className="review-card-meta">
+          <span className="review-card-name">{userName}</span>
+          <span className="review-card-date">{date}</span>
+        </div>
+        <span className="review-card-rating">{review.rating}/10 ★</span>
+      </div>
+      <p className="review-card-text">{review.reviewText}</p>
+      {isOwn && (
+        <div className="review-card-footer">
+          <button
+            type="button"
+            className="review-delete-btn"
+            onClick={() => onDelete(review._id)}
+          >
+            ✕ Delete
+          </button>
+        </div>
+      )}
+    </article>
+  )
+}
+
 function MovieDetailsPage() {
   const { movieId } = useParams()
   const navigate = useNavigate()
   const { addToFavorites, removeFromFavorites, isFavorite } = useMovieContext()
+  const { token, isLoggedIn, user } = useAuth()
+
   const [loading, setLoading] = useState(true)
   const [movie, setMovie] = useState(null)
   const [similar, setSimilar] = useState([])
   const [error, setError] = useState("")
 
+  // Watch providers
+  const [providers, setProviders] = useState(null)
+
+  // Watchlist
+  const [inWatchlist, setInWatchlist] = useState(false)
+  const [watchlistLoading, setWatchlistLoading] = useState(false)
+
+  // Reviews
+  const [reviews, setReviews] = useState([])
+  const [communityStats, setCommunityStats] = useState({ avgRating: 0, count: 0 })
+  const [reviewRating, setReviewRating] = useState(0)
+  const [reviewText, setReviewText] = useState("")
+  const [reviewSubmitting, setReviewSubmitting] = useState(false)
+  const [reviewError, setReviewError] = useState("")
+
+  // Load movie details + similar + watch providers
   useEffect(() => {
     let cancelled = false
     async function loadDetails() {
       setLoading(true)
       setError("")
       try {
-        const [details, similarData] = await Promise.all([
+        const [details, similarData, watchData] = await Promise.all([
           getMovieDetails(movieId),
           getSimilarMovies(movieId, 1),
+          getWatchProviders(movieId).catch(() => null),
         ])
         if (!cancelled) {
           setMovie(details)
           setSimilar(similarData.results || [])
+          // Get providers for IN region first, fallback to US
+          const regionData = watchData?.results?.IN || watchData?.results?.US || null
+          setProviders(regionData)
         }
       } catch {
         if (!cancelled) setError("Could not load movie details.")
@@ -56,6 +141,126 @@ function MovieDetailsPage() {
       cancelled = true
     }
   }, [movieId])
+
+  // Load reviews + stats
+  const loadReviews = useCallback(async () => {
+    try {
+      const [reviewsRes, statsRes] = await Promise.all([
+        axios.get(`${API_BASE}/reviews/${movieId}`),
+        axios.get(`${API_BASE}/reviews/${movieId}/stats`),
+      ])
+      setReviews(reviewsRes.data)
+      setCommunityStats(statsRes.data)
+    } catch {
+      // Silent fail — reviews are supplementary
+    }
+  }, [movieId])
+
+  useEffect(() => {
+    loadReviews()
+  }, [loadReviews])
+
+  // Check watchlist status
+  useEffect(() => {
+    if (!isLoggedIn || !token) {
+      setInWatchlist(false)
+      return
+    }
+    let cancelled = false
+    async function check() {
+      try {
+        const res = await axios.get(`${API_BASE}/watchlist/check/${movieId}`, {
+          headers: { Authorization: token },
+        })
+        if (!cancelled) setInWatchlist(res.data.inWatchlist)
+      } catch {
+        if (!cancelled) setInWatchlist(false)
+      }
+    }
+    check()
+    return () => { cancelled = true }
+  }, [movieId, token, isLoggedIn])
+
+  // Check if user already has a review, pre-fill form
+  useEffect(() => {
+    if (!user || !reviews.length) return
+    const own = reviews.find((r) => r.userId?._id === user.id)
+    if (own) {
+      setReviewRating(own.rating)
+      setReviewText(own.reviewText)
+    } else {
+      setReviewRating(0)
+      setReviewText("")
+    }
+  }, [reviews, user])
+
+  // Watchlist toggle
+  const toggleWatchlist = async () => {
+    if (!isLoggedIn) return
+    setWatchlistLoading(true)
+    try {
+      if (inWatchlist) {
+        await axios.delete(`${API_BASE}/watchlist/${movieId}`, {
+          headers: { Authorization: token },
+        })
+        setInWatchlist(false)
+      } else {
+        await axios.post(
+          `${API_BASE}/watchlist`,
+          { movieId: Number(movieId) },
+          { headers: { Authorization: token } }
+        )
+        setInWatchlist(true)
+      }
+    } catch {
+      // Silent
+    } finally {
+      setWatchlistLoading(false)
+    }
+  }
+
+  // Submit review
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault()
+    if (!isLoggedIn) return
+    if (reviewRating < 1 || reviewRating > 10) {
+      setReviewError("Please select a rating (1–10)")
+      return
+    }
+    if (!reviewText.trim()) {
+      setReviewError("Please write a review")
+      return
+    }
+    setReviewSubmitting(true)
+    setReviewError("")
+    try {
+      await axios.post(
+        `${API_BASE}/reviews`,
+        { movieId: Number(movieId), rating: reviewRating, reviewText: reviewText.trim() },
+        { headers: { Authorization: token } }
+      )
+      await loadReviews()
+      // Don't clear form — it shows current review
+    } catch (err) {
+      setReviewError(err.response?.data?.message || "Failed to submit review")
+    } finally {
+      setReviewSubmitting(false)
+    }
+  }
+
+  // Delete review
+  const handleDeleteReview = async (reviewId) => {
+    try {
+      await axios.delete(`${API_BASE}/reviews/${reviewId}`, {
+        headers: { Authorization: token },
+      })
+      setReviewRating(0)
+      setReviewText("")
+      await loadReviews()
+    } catch {
+      // Silent
+    }
+  }
 
   const trailerUrl = useMemo(() => {
     const list = movie?.videos?.results || []
@@ -89,7 +294,27 @@ function MovieDetailsPage() {
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
     : "https://via.placeholder.com/500x750?text=No+Poster"
 
-  const voteCount = movie?.vote_count ?? 0
+  const tmdbVoteCount = movie?.vote_count ?? 0
+  const userHasReview = user && reviews.some((r) => r.userId?._id === user.id)
+
+  // Collect all streaming types into one flat list
+  const streamingProviders = useMemo(() => {
+    if (!providers) return []
+    const all = []
+    const seen = new Set()
+    const types = ["flatrate", "rent", "buy", "free"]
+    for (const type of types) {
+      if (providers[type]) {
+        for (const p of providers[type]) {
+          if (!seen.has(p.provider_id)) {
+            seen.add(p.provider_id)
+            all.push({ ...p, type })
+          }
+        }
+      }
+    }
+    return all
+  }, [providers])
 
   if (loading) {
     return (
@@ -139,10 +364,22 @@ function MovieDetailsPage() {
               {movie.title} <span className="movie-details-year">({year})</span>
             </h1>
             <div className="movie-details-score-row">
-              <span className="movie-details-rating">{(movie.vote_average || 0).toFixed(1)}/10</span>
-              <span className="movie-details-reviews">
-                {voteCount.toLocaleString()} review{voteCount === 1 ? "" : "s"}
-              </span>
+              <div className="rating-source-group">
+                <span className="rating-source-label">TMDB</span>
+                <span className="movie-details-rating">{(movie.vote_average || 0).toFixed(1)}/10</span>
+                <span className="movie-details-reviews">
+                  {tmdbVoteCount.toLocaleString()} review{tmdbVoteCount === 1 ? "" : "s"}
+                </span>
+              </div>
+              <div className="rating-source-group rating-source-community">
+                <span className="rating-source-label community-label">Community</span>
+                <span className="movie-details-rating community-rating">
+                  {communityStats.count > 0 ? `${communityStats.avgRating.toFixed(1)}/10` : "—/10"}
+                </span>
+                <span className="movie-details-reviews">
+                  {communityStats.count} review{communityStats.count === 1 ? "" : "s"}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -178,9 +415,42 @@ function MovieDetailsPage() {
             <p className="movie-details-overview">{movie.overview || "No synopsis available."}</p>
           </div>
 
+          {/* Where to Watch */}
+          {streamingProviders.length > 0 && (
+            <div className="where-to-watch-section">
+              <p className="where-to-watch-label">Where to Watch</p>
+              <div className="where-to-watch-providers">
+                {streamingProviders.map((p) => (
+                  <div key={p.provider_id} className="provider-chip" title={`${p.provider_name} (${p.type})`}>
+                    <img
+                      src={`https://image.tmdb.org/t/p/w92${p.logo_path}`}
+                      alt={p.provider_name}
+                      className="provider-logo"
+                      loading="lazy"
+                    />
+                    <span className="provider-name">{p.provider_name}</span>
+                    <span className={`provider-type-badge provider-type-${p.type}`}>
+                      {p.type === "flatrate" ? "Stream" : p.type === "free" ? "Free" : p.type === "rent" ? "Rent" : "Buy"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {providers?.link && (
+                <a
+                  href={providers.link}
+                  className="where-to-watch-link"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View all options on JustWatch →
+                </a>
+              )}
+            </div>
+          )}
+
           <div className="movie-details-actions">
             <a href={trailerUrl} className="details-btn" target="_blank" rel="noreferrer">
-              Watch Trailer
+              ▶ Watch Trailer
             </a>
             <button
               type="button"
@@ -189,6 +459,20 @@ function MovieDetailsPage() {
             >
               {isFav ? "♥ Favorited" : "♡ Add to Favorites"}
             </button>
+            {isLoggedIn && (
+              <button
+                type="button"
+                className={`details-btn ${inWatchlist ? "watchlist-active" : "watchlist-btn"}`}
+                onClick={toggleWatchlist}
+                disabled={watchlistLoading}
+              >
+                {watchlistLoading
+                  ? "..."
+                  : inWatchlist
+                    ? "✓ On Watchlist"
+                    : "📋 Add to Watchlist"}
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -207,6 +491,75 @@ function MovieDetailsPage() {
           )
         })}
       </DetailsHorizontalCarousel>
+
+      {/* Reviews Section */}
+      <section className="reviews-section" id="reviews">
+        <div className="reviews-section-header">
+          <h2 className="reviews-section-title">Community Reviews</h2>
+          <span className="reviews-section-count">{reviews.length} review{reviews.length === 1 ? "" : "s"}</span>
+        </div>
+
+        {/* Review Form */}
+        {isLoggedIn ? (
+          <form className="review-form" onSubmit={handleReviewSubmit}>
+            <div className="review-form-header">
+              <span className="review-form-label">
+                {userHasReview ? "Update your review" : "Write a review"}
+              </span>
+            </div>
+            <StarRatingInput value={reviewRating} onChange={setReviewRating} />
+            <textarea
+              className="review-textarea"
+              placeholder="Share your thoughts about this movie..."
+              value={reviewText}
+              onChange={(e) => setReviewText(e.target.value)}
+              maxLength={2000}
+              rows={4}
+            />
+            {reviewError && <p className="review-form-error">{reviewError}</p>}
+            <button
+              type="submit"
+              className="review-submit-btn"
+              disabled={reviewSubmitting}
+            >
+              {reviewSubmitting
+                ? "Submitting..."
+                : userHasReview
+                  ? "Update Review"
+                  : "Post Review"}
+            </button>
+          </form>
+        ) : (
+          <div className="review-signin-prompt">
+            <p>Sign in to leave a review and rating</p>
+            <button
+              type="button"
+              className="details-btn"
+              onClick={() => navigate("/signin")}
+            >
+              Sign In
+            </button>
+          </div>
+        )}
+
+        {/* Reviews List */}
+        {reviews.length > 0 ? (
+          <div className="reviews-list">
+            {reviews.map((review) => (
+              <ReviewCard
+                key={review._id}
+                review={review}
+                currentUserId={user?.id}
+                onDelete={handleDeleteReview}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="reviews-empty">
+            <p>No reviews yet. Be the first to share your thoughts!</p>
+          </div>
+        )}
+      </section>
 
       {similar.length > 0 ? (
         <div className="movie-details-similar">
