@@ -62,8 +62,28 @@
   text-transform: uppercase;
 }
 
+.movie-list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .movie-list-fav.active {
   background: var(--neo-accent);
+}
+
+.movie-list-watch {
+  width: fit-content;
+  border: 3px solid var(--neo-fg);
+  background: var(--neo-muted);
+  padding: 0.35rem 0.7rem;
+  box-shadow: var(--neo-shadow-sm);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.movie-list-watch.active {
+  background: var(--neo-secondary);
 }
 
 @media (max-width: 740px) {

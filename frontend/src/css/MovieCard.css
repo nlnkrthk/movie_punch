@@ -25,21 +25,23 @@
   box-shadow: var(--neo-shadow-lg);
 }
 
-.movie-poster {
+.movie-poster-wrap {
+  position: relative;
   position: relative;
   aspect-ratio: 3/4;
   width: 100%;
   overflow: hidden;
 }
 
-.movie-poster img {
+.movie-poster {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.movie-card:hover .movie-poster img {
+.movie-card:hover .movie-poster {
   transform: scale(1.03);
 }
 
@@ -61,16 +63,16 @@
 
 .favorite-button {
   position: absolute;
-  top: 0.4rem;
-  right: 0.4rem;
+  bottom: 0.45rem;
+  right: 0.45rem;
   color: var(--neo-fg);
-  font-size: 1.45rem;
+  font-size: 1.2rem;
   padding: 0.2rem;
   background: var(--neo-secondary);
   border: 4px solid var(--neo-fg);
   border-radius: 50%;
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,6 +81,43 @@
   z-index: 20;
   pointer-events: auto;
   box-shadow: var(--neo-shadow-sm);
+}
+
+.watchlist-button {
+  position: absolute;
+  bottom: 0.45rem;
+  right: 3.35rem;
+  color: var(--neo-fg);
+  font-size: 0.92rem;
+  padding: 0.2rem;
+  background: var(--neo-muted);
+  border: 4px solid var(--neo-fg);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 120ms linear, box-shadow 120ms linear, background-color 120ms linear;
+  cursor: pointer;
+  z-index: 20;
+  pointer-events: auto;
+  box-shadow: var(--neo-shadow-sm);
+}
+
+.watchlist-button:hover {
+  background: var(--neo-secondary);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 #000000;
+}
+
+.watchlist-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.watchlist-button.active {
+  background: var(--neo-secondary);
 }
 
 .favorite-button:hover {
@@ -149,8 +188,17 @@
 
 @media (max-width: 768px) {
   .favorite-button {
-    width: 46px;
-    height: 46px;
-    font-size: 1.3rem;
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+    bottom: 0.4rem;
+  }
+
+  .watchlist-button {
+    width: 40px;
+    height: 40px;
+    right: 3.05rem;
+    font-size: 0.84rem;
+    bottom: 0.4rem;
   }
 }

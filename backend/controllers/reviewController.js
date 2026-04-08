@@ -73,6 +73,17 @@ exports.getReviewStats = async (req, res) => {
   }
 };
 
+// GET /api/reviews/me — get logged-in user's reviews
+exports.getMyReviews = async (req, res) => {
+  try {
+    const userId = req.user;
+    const reviews = await Review.find({ userId }).sort({ createdAt: -1 });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // DELETE /api/reviews/:id — delete own review
 exports.deleteReview = async (req, res) => {
   try {

@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from "react"
+import { Link } from "react-router-dom"
+import axios from "axios"
+import { useAuth } from "../context/AuthContext"
+import { useMovieContext } from "../context/MovieContext"
 import HeroBanner from "../components/HeroBanner"
 import MovieCarousel from "../components/MovieCarousel"
 import {
+  discoverMovies,
+  getMovieDetails,
   getPopularMovies,
   getTopRatedMovies,
   getTrendingMovies,
@@ -10,12 +16,18 @@ import {
 import "../css/HomePage.css"
 
 const HERO_ROTATE_MS = 60_000
+const API_BASE = "http://localhost:5000/api"
 
 function HomePage() {
+  const { token, isLoggedIn } = useAuth()
+  const { favorites } = useMovieContext()
   const [trending, setTrending] = useState([])
   const [popular, setPopular] = useState([])
   const [topRated, setTopRated] = useState([])
   const [upcoming, setUpcoming] = useState([])
+  const [watchlist, setWatchlist] = useState([])
+  const [recommended, setRecommended] = useState([])
+  const [loadingRecommended, setLoadingRecommended] = useState(false)
   const [loading, setLoading] = useState(true)
   const [heroIndex, setHeroIndex] = useState(0)
 
@@ -48,6 +60,31 @@ function HomePage() {
   }, [])
 
   useEffect(() => {
+    if (!isLoggedIn || !token) {
+      setWatchlist([])
+      setRecommended([])
+      return
+    }
+
+    let cancelled = false
+    async function loadWatchlist() {
+      try {
+        const res = await axios.get(`${API_BASE}/watchlist`, {
+          headers: { Authorization: token },
+        })
+        if (!cancelled) setWatchlist(res.data || [])
+      } catch {
+        if (!cancelled) setWatchlist([])
+      }
+    }
+
+    loadWatchlist()
+    return () => {
+      cancelled = true
+    }
+  }, [isLoggedIn, token])
+
+  useEffect(() => {
     if (popular.length === 0) return
     setHeroIndex(0)
     const id = window.setInterval(() => {
@@ -61,14 +98,120 @@ function HomePage() {
     return trending[0]
   }, [heroIndex, popular, trending])
 
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setRecommended([])
+      return
+    }
+
+    const sourceIds = Array.from(
+      new Set([
+        ...favorites.map((item) => Number(item.movieId)),
+        ...watchlist.map((item) => Number(item.movieId)),
+      ])
+    ).filter((id) => !Number.isNaN(id))
+
+    if (sourceIds.length === 0) {
+      setRecommended([])
+      return
+    }
+
+    let cancelled = false
+    async function loadRecommendations() {
+      setLoadingRecommended(true)
+      try {
+        const sourceDetails = await Promise.all(sourceIds.map((id) => getMovieDetails(id)))
+        if (cancelled) return
+
+        const genreCounts = sourceDetails.reduce((acc, movie) => {
+          ;(movie.genres || []).forEach((genre) => {
+            acc[genre.id] = (acc[genre.id] || 0) + 1
+          })
+          return acc
+        }, {})
+
+        const topGenres = Object.entries(genreCounts)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3)
+          .map(([genreId]) => genreId)
+
+        const excluded = new Set(sourceIds)
+        const picks = []
+
+        for (const genreId of topGenres) {
+          const data = await discoverMovies({
+            page: 1,
+            genreId,
+            sortBy: "popularity.desc",
+          })
+          const results = data.results || []
+          for (const movie of results) {
+            if (!excluded.has(movie.id) && !picks.some((picked) => picked.id === movie.id)) {
+              picks.push(movie)
+            }
+            if (picks.length >= 20) break
+          }
+          if (picks.length >= 20) break
+        }
+
+        if (!cancelled) setRecommended(picks)
+      } catch {
+        if (!cancelled) setRecommended([])
+      } finally {
+        if (!cancelled) setLoadingRecommended(false)
+      }
+    }
+
+    loadRecommendations()
+    return () => {
+      cancelled = true
+    }
+  }, [favorites, watchlist, isLoggedIn])
+
   return (
     <section className="homepage">
       <HeroBanner movie={heroMovie} />
       {loading ? <p className="homepage-loading">Loading sections...</p> : null}
+      {isLoggedIn && loadingRecommended ? (
+        <p className="homepage-loading">Building your recommendations...</p>
+      ) : null}
+      {isLoggedIn && recommended.length > 0 ? (
+        <MovieCarousel title="Recommended For You" movies={recommended} />
+      ) : null}
       <MovieCarousel title="Trending Movies" movies={trending} />
       <MovieCarousel title="Popular Movies" movies={popular} />
       <MovieCarousel title="Top Rated Movies" movies={topRated} />
       <MovieCarousel title="Upcoming Movies" movies={upcoming} />
+      <footer className="homepage-footer neo-texture" aria-label="Site footer">
+        <div className="homepage-footer-grid">
+          <section className="homepage-footer-brand">
+            <p className="homepage-footer-title">Movie Punch</p>
+            <p className="homepage-footer-copy">
+              Discover, save, and review movies with a bold experience built for real film fans.
+            </p>
+          </section>
+
+          <nav className="homepage-footer-nav" aria-label="Quick links">
+            <p className="homepage-footer-heading">Quick Links</p>
+            <div className="homepage-footer-links">
+              <Link to="/home">Home</Link>
+              <Link to="/explore">Explore</Link>
+              <Link to="/my-space">My Space</Link>
+              <Link to="/signin">Account</Link>
+            </div>
+          </nav>
+
+          <section className="homepage-footer-contact">
+            <p className="homepage-footer-heading">Built With</p>
+            <p className="homepage-footer-meta">React • TMDB API • Express</p>
+          </section>
+        </div>
+
+        <div className="homepage-footer-bottom">
+          <p>© {new Date().getFullYear()} Movie Punch</p>
+          <p>Updated daily with TMDB data</p>
+        </div>
+      </footer>
     </section>
   )
 }

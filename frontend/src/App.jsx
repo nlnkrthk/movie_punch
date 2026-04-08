@@ -1,7 +1,7 @@
 import './css/App.css'
 import ExplorePage from './pages/ExplorePage'
 import HomePage from './pages/HomePage'
-import FavoritesPage from './pages/FavoritesPage'
+import MySpacePage from './pages/MySpacePage'
 import MovieDetailsPage from './pages/MovieDetailsPage'
 import Account from './pages/Account'
 import { Routes, Route } from 'react-router-dom'
@@ -18,7 +18,8 @@ function App() {
           <Route path="/home" element={<HomePage />} />
           <Route path="/explore" element={<ExplorePage />} />
           <Route path="/movie/:movieId" element={<MovieDetailsPage />} />
-          <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/my-space" element={<MySpacePage />} />
+          <Route path="/favorites" element={<MySpacePage />} />
           <Route path="/signin" element={<Account />} />
           <Route path="/signup" element={<Account />} />
         </Routes>

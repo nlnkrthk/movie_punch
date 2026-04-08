@@ -1,17 +1,18 @@
 import "../css/Auth.css"
-import { useState, useRef } from "react"
+import { useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
-import { useMovieContext } from "../context/MovieContext"
 import axios from "axios"
 
 function Account() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, isLoggedIn, login, logout } = useAuth()
-  const { favorites } = useMovieContext()
 
-  const [profilePic, setProfilePic] = useState(() => {
+  const mode = location.pathname === "/signup" ? "signup" : "signin"
+  const [showSignInPassword, setShowSignInPassword] = useState(false)
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false)
+  const [profilePic] = useState(() => {
     try {
       const stored = localStorage.getItem(`pfp_${user?.id}`)
       return stored || null
@@ -19,10 +20,6 @@ function Account() {
       return null
     }
   })
-
-  const mode = location.pathname === "/signup" ? "signup" : "signin"
-  const [showSignInPassword, setShowSignInPassword] = useState(false)
-  const [showSignUpPassword, setShowSignUpPassword] = useState(false)
 
   const [signInData, setSignInData] = useState({
     email: "",
@@ -91,54 +88,12 @@ function Account() {
           .slice(0, 2)
       : "?"
 
-    function handleAvatarClick() {
-      const input = document.createElement("input")
-      input.type = "file"
-      input.accept = "image/*"
-      input.onchange = (e) => {
-        const file = e.target.files?.[0]
-        if (!file) return
-        if (file.size > 2 * 1024 * 1024) {
-          alert("Image must be under 2 MB")
-          return
-        }
-        const reader = new FileReader()
-        reader.onload = () => {
-          const dataUrl = reader.result
-          setProfilePic(dataUrl)
-          try {
-            localStorage.setItem(`pfp_${user.id}`, dataUrl)
-          } catch {
-            /* quota exceeded */
-          }
-        }
-        reader.readAsDataURL(file)
-      }
-      input.click()
-    }
-
-    function handleRemoveAvatar(e) {
-      e.stopPropagation()
-      setProfilePic(null)
-      localStorage.removeItem(`pfp_${user.id}`)
-    }
-
     return (
       <section className="auth-page">
         <div className="profile-card">
           <span className="auth-badge">Your Profile</span>
 
-
-          <div
-            className="profile-avatar-wrap"
-            onClick={handleAvatarClick}
-            role="button"
-            tabIndex={0}
-            aria-label="Change profile picture"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") handleAvatarClick()
-            }}
-          >
+          <div className="profile-avatar-wrap" aria-hidden="true">
             <div className="profile-avatar">
               {profilePic ? (
                 <img src={profilePic} alt="Profile" className="profile-avatar-img" />
@@ -146,28 +101,12 @@ function Account() {
                 <span>{initials}</span>
               )}
             </div>
-            <div className="profile-avatar-overlay">
-              <span>📷</span>
-            </div>
           </div>
-          {profilePic && (
-            <button
-              type="button"
-              className="profile-remove-pic"
-              onClick={handleRemoveAvatar}
-            >
-              Remove Photo
-            </button>
-          )}
 
           <h1 className="profile-name">{user?.name || "User"}</h1>
           <p className="profile-email">{user?.email || ""}</p>
 
           <div className="profile-stats">
-            <div className="profile-stat">
-              <span className="profile-stat-value">{favorites.length}</span>
-              <span className="profile-stat-label">Favorites</span>
-            </div>
             <div className="profile-stat">
               <span className="profile-stat-value">Active</span>
               <span className="profile-stat-label">Status</span>

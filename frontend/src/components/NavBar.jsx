@@ -15,7 +15,7 @@ function NavBar() {
       <div className="navbar-links">
         <NavLink to="/" end className={navClassName}>Home</NavLink>
         <NavLink to="/explore" className={navClassName}>Explore</NavLink>
-        <NavLink to="/favorites" className={navClassName}>Favorites</NavLink>
+        <NavLink to="/my-space" className={navClassName}>My Space</NavLink>
         <NavLink to="/signin" className={`nav-link${accountActive ? " active" : ""}`}>
           Account
         </NavLink>
