@@ -4,6 +4,10 @@ import { useAuth } from "../context/AuthContext"
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
+import heartEmpty from "../assets/heart-empty.png"
+import heartFilled from "../assets/heart-filled.png"
+import watchlistEmpty from "../assets/not-watchlisted.png"
+import watchlistFilled from "../assets/watchlisted.png"
 
 const API_BASE = "http://localhost:5000/api"
 
@@ -102,29 +106,39 @@ function MovieCard({ movie, onOpenDetails }) {
     >
       <div className="movie-poster-wrap">
         <img src={posterUrl} alt={movie.title} loading="lazy" className="movie-poster" />
-        <div className="movie-overlay">
-          <button
-            type="button"
-            className={`favorite-button ${favorited ? "active" : ""}`}
-            onClick={onFavoriteClick}
-            aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
-          >
-            {favorited ? "♥" : "♡"}
-          </button>
-          {isLoggedIn ? (
-            <button
-              type="button"
-              className={`watchlist-button ${inWatchlist ? "active" : ""}`}
-              onClick={onWatchlistClick}
-              aria-label={inWatchlist ? "Remove from watchlist" : "Add to watchlist"}
-            >
-              {inWatchlist ? "✓" : "📋"}
-            </button>
-          ) : null}
-        </div>
       </div>
       <div className="movie-info">
-        <h3 className="movie-title">{movie.title || "Unknown Title"}</h3>
+        <div className="movie-title-row">
+          <h3 className="movie-title">{movie.title || "Unknown Title"}</h3>
+          <div className="movie-action-btns">
+            <button
+              type="button"
+              className={`mc-fav-btn ${favorited ? "active" : ""}`}
+              onClick={onFavoriteClick}
+              aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
+            >
+              <img
+                src={favorited ? heartFilled : heartEmpty}
+                alt={favorited ? "Favorited" : "Not favorited"}
+                className="mc-heart-icon"
+              />
+            </button>
+            {isLoggedIn ? (
+              <button
+                type="button"
+                className={`mc-watch-btn ${inWatchlist ? "active" : ""}`}
+                onClick={onWatchlistClick}
+                aria-label={inWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+              >
+                <img
+                  src={inWatchlist ? watchlistFilled : watchlistEmpty}
+                  alt={inWatchlist ? "In watchlist" : "Not in watchlist"}
+                  className="mc-watch-icon"
+                />
+              </button>
+            ) : null}
+          </div>
+        </div>
         <p className="movie-year">{releaseYear}</p>
         <p className="movie-rating">★ {rating}</p>
         <p className="movie-description">{overview}</p>

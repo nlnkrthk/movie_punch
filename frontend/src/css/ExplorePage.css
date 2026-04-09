@@ -7,20 +7,35 @@
 .explore-discover-banner {
   grid-column: 1 / -1;
   border: 4px solid var(--neo-fg);
-  box-shadow: var(--neo-shadow-lg);
-  background: var(--neo-secondary);
-  padding: 0.85rem 1rem;
+  box-shadow: 8px 8px 0px 0px var(--neo-fg);
+  background: var(--neo-muted);
+  background-image: 
+    linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%),
+    linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  padding: 1.5rem 1.8rem;
 }
 
 .explore-discover-banner h1 {
-  font-size: 1.8rem;
+  font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: -0.02em;
+  color: var(--neo-white);
+  text-shadow: 4px 4px 0 var(--neo-fg);
+  line-height: 1.1;
 }
 
 .explore-discover-banner p {
   font-weight: 800;
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  color: var(--neo-fg);
+  background: var(--neo-white);
+  width: fit-content;
+  border: 3px solid var(--neo-fg);
+  padding: 0.3rem 0.6rem;
 }
 
 .explore-left-col {
@@ -99,4 +114,35 @@
   .explore-top-sticky {
     top: 70px;
   }
+}
+
+.explore-person-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--neo-accent);
+  border: 4px solid var(--neo-fg);
+  padding: 0.6rem 1rem;
+  font-weight: 800;
+  box-shadow: 4px 4px 0px 0px var(--neo-fg);
+  font-size: 0.95rem;
+}
+
+.explore-person-badge button {
+  background: var(--neo-white);
+  border: 3px solid var(--neo-fg);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 0 var(--neo-fg);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.explore-person-badge button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 0 var(--neo-fg);
 }

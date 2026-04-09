@@ -171,6 +171,16 @@ function HomePage() {
   return (
     <section className="homepage">
       <HeroBanner movie={heroMovie} />
+      <section className="homepage-ai-promo neo-texture" aria-label="AI movie exploration">
+        <h2>Explore Movies With AI</h2>
+        <p>
+          Chat with an AI assistant to discover films by mood, genre blends, vibes, and hidden gems
+          tailored to your taste.
+        </p>
+        <Link to="/explore" state={{ autoExpandChat: true }} className="homepage-ai-btn">
+          Explore Using AI
+        </Link>
+      </section>
       {loading ? <p className="homepage-loading">Loading sections...</p> : null}
       {isLoggedIn && loadingRecommended ? (
         <p className="homepage-loading">Building your recommendations...</p>

@@ -22,9 +22,14 @@
 .sort-panel select {
   height: 2.7rem;
   border: 3px solid var(--neo-fg);
-  background: var(--neo-secondary);
+  background: var(--neo-white);
   font-weight: 700;
   padding: 0 0.55rem;
+  cursor: pointer;
+}
+
+.sort-panel select:hover {
+  background: rgba(196, 181, 253, 0.3); /* Subtle neo-muted purple highlight */
 }
 
 .sort-panel.mobile {

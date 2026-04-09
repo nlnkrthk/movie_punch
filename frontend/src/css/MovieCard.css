@@ -1,3 +1,4 @@
+/* ─── Movie Card ─────────────────────────────────────────── */
 .movie-card {
   position: relative;
   overflow: hidden;
@@ -8,7 +9,6 @@
   border: 4px solid var(--neo-fg);
   box-shadow: var(--neo-shadow-md);
   width: 100%;
-  border-radius: 16px;
 }
 
 .movie-card-clickable {
@@ -25,10 +25,10 @@
   box-shadow: var(--neo-shadow-lg);
 }
 
+/* ─── Poster ────────────────────────────────────────────── */
 .movie-poster-wrap {
   position: relative;
-  position: relative;
-  aspect-ratio: 3/4;
+  aspect-ratio: 3 / 4;
   width: 100%;
   overflow: hidden;
 }
@@ -45,105 +45,23 @@
   transform: scale(1.03);
 }
 
-.movie-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 2;
-  background: transparent;
-  opacity: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 0;
-  pointer-events: none;
-}
-
-.favorite-button {
-  position: absolute;
-  bottom: 0.45rem;
-  right: 0.45rem;
-  color: var(--neo-fg);
-  font-size: 1.2rem;
-  padding: 0.2rem;
-  background: var(--neo-secondary);
-  border: 4px solid var(--neo-fg);
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 120ms linear, box-shadow 120ms linear, background-color 120ms linear;
-  cursor: pointer;
-  z-index: 20;
-  pointer-events: auto;
-  box-shadow: var(--neo-shadow-sm);
-}
-
-.watchlist-button {
-  position: absolute;
-  bottom: 0.45rem;
-  right: 3.35rem;
-  color: var(--neo-fg);
-  font-size: 0.92rem;
-  padding: 0.2rem;
-  background: var(--neo-muted);
-  border: 4px solid var(--neo-fg);
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 120ms linear, box-shadow 120ms linear, background-color 120ms linear;
-  cursor: pointer;
-  z-index: 20;
-  pointer-events: auto;
-  box-shadow: var(--neo-shadow-sm);
-}
-
-.watchlist-button:hover {
-  background: var(--neo-secondary);
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 0 #000000;
-}
-
-.watchlist-button:active {
-  transform: translate(2px, 2px);
-  box-shadow: none;
-}
-
-.watchlist-button.active {
-  background: var(--neo-secondary);
-}
-
-.favorite-button:hover {
-  background: var(--neo-accent);
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 0 #000000;
-}
-
-.favorite-button:active {
-  transform: translate(2px, 2px);
-  box-shadow: none;
-}
-
-.favorite-button.active {
-  background: var(--neo-accent);
-  color: var(--neo-fg);
-}
-
+/* ─── Info Area ─────────────────────────────────────────── */
 .movie-info {
-  padding: 0.7rem;
+  padding: 0.6rem 0.7rem 0.7rem;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.25rem;
   background: var(--neo-white);
   border-top: 4px solid var(--neo-fg);
+}
+
+/* ─── Title Row (title + action buttons) ────────────────── */
+.movie-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.35rem;
 }
 
 .movie-title {
@@ -157,8 +75,73 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
+  flex: 1;
+  min-width: 0;
 }
 
+/* ─── Action Buttons (next to title) ────────────────────── */
+.movie-action-btns {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.mc-fav-btn,
+.mc-watch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 100ms linear;
+  padding: 0;
+}
+
+/* ─── Favorite (Heart) Button ───────────────────────────── */
+.mc-fav-btn {
+  width: 24px;
+  height: 24px;
+}
+
+.mc-heart-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+}
+
+.mc-fav-btn:hover {
+  transform: scale(1.18);
+}
+
+.mc-fav-btn:active {
+  transform: scale(0.88);
+}
+
+/* ─── Watchlist Button ──────────────────────────────────── */
+.mc-watch-btn {
+  width: 24px;
+  height: 24px;
+}
+
+.mc-watch-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+}
+
+.mc-watch-btn:hover {
+  transform: scale(1.18);
+}
+
+.mc-watch-btn:active {
+  transform: scale(0.88);
+}
+
+/* ─── Meta Text ─────────────────────────────────────────── */
 .movie-year {
   width: fit-content;
   font-size: 0.8rem;
@@ -186,19 +169,15 @@
   line-height: 1.3;
 }
 
+/* ─── Responsive ────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .favorite-button {
-    width: 40px;
-    height: 40px;
-    font-size: 1.1rem;
-    bottom: 0.4rem;
+  .mc-fav-btn {
+    width: 20px;
+    height: 20px;
   }
 
-  .watchlist-button {
-    width: 40px;
-    height: 40px;
-    right: 3.05rem;
-    font-size: 0.84rem;
-    bottom: 0.4rem;
+  .mc-watch-btn {
+    width: 20px;
+    height: 20px;
   }
 }

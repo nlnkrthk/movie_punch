@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useLocation } from "react-router-dom"
 import GenreBar from "../components/GenreBar"
 import LoadMoreButton from "../components/LoadMoreButton"
 import MovieListItem from "../components/MovieListItem"
 import SearchBar from "../components/SearchBar"
 import SortPanel from "../components/SortPanel"
-import { discoverMovies, getGenres, searchMovies } from "../services/tmdb"
+import MovieAssistant from "../components/MovieAssistant"
+import { discoverMovies, getGenres, searchMovies, searchPerson } from "../services/tmdb"
 import "../css/ExplorePage.css"
 
 const DEBOUNCE_MS = 400
@@ -23,11 +25,15 @@ function toTmdbSort(sortOption, sortOrder) {
 }
 
 function ExplorePage() {
+  const location = useLocation()
+  const autoExpandChat = location.state?.autoExpandChat || false
+
   const [movies, setMovies] = useState([])
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedGenre, setSelectedGenre] = useState("")
   const [sortOption, setSortOption] = useState("popularity")
   const [sortOrder, setSortOrder] = useState("desc")
+  const [activePerson, setActivePerson] = useState(null)
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [genres, setGenres] = useState([])
@@ -53,7 +59,7 @@ function ExplorePage() {
     setPage(1)
     setMovies([])
     setHasMore(true)
-  }, [debouncedQuery, selectedGenre, sortOption, sortOrder])
+  }, [debouncedQuery, selectedGenre, sortOption, sortOrder, activePerson])
 
   useEffect(() => {
     let cancelled = false
@@ -67,7 +73,7 @@ function ExplorePage() {
         const data =
           debouncedQuery.length > 0
             ? await searchMovies(debouncedQuery, page, sortBy)
-            : await discoverMovies({ page, genreId: selectedGenre, sortBy })
+            : await discoverMovies({ page, genreId: selectedGenre, sortBy, personId: activePerson?.id || "" })
 
         if (cancelled) return
         const incoming = data.results || []
@@ -89,7 +95,42 @@ function ExplorePage() {
     return () => {
       cancelled = true
     }
-  }, [debouncedQuery, page, selectedGenre, sortOption, sortOrder])
+  }, [debouncedQuery, page, selectedGenre, sortOption, sortOrder, activePerson])
+
+  const handleApplyFilters = async (instructions) => {
+    if (instructions.search !== undefined) {
+      setSearchQuery(instructions.search)
+    }
+    
+    if (instructions.person) {
+      try {
+        const pData = await searchPerson(instructions.person)
+        if (pData.results && pData.results.length > 0) {
+          setActivePerson({ id: pData.results[0].id, name: pData.results[0].name })
+          setSearchQuery("") // Clear text search to enable discovery mode for this person
+        }
+      } catch (err) {
+        console.error("Failed to fetch person context for:", instructions.person)
+      }
+    }
+
+    if (instructions.genres && instructions.genres.length > 0) {
+      // Find the ID of the first requested genre
+      const requestedGenreName = instructions.genres[0].toLowerCase()
+      const match = genres.find(g => g.name.toLowerCase() === requestedGenreName)
+      if (match) setSelectedGenre(String(match.id))
+    } else if (instructions.genres && instructions.genres.length === 0) {
+      setSelectedGenre("")
+    }
+
+    if (instructions.sort_by) {
+      setSortOption(instructions.sort_by)
+    }
+
+    if (instructions.order) {
+      setSortOrder(instructions.order.toLowerCase())
+    }
+  }
 
   const skeletons = useMemo(() => Array.from({ length: 6 }, (_, i) => i), [])
 
@@ -122,8 +163,18 @@ function ExplorePage() {
       </aside>
 
       <main className="explore-main-col">
+        <MovieAssistant genres={genres} onApplyFilters={handleApplyFilters} autoFocus={autoExpandChat} />
+        
         <div className="explore-top-sticky">
           <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          
+          {activePerson && (
+             <div className="explore-person-badge">
+                <span>Filtering by: <strong>{activePerson.name}</strong></span>
+                <button aria-label="Clear Person" onClick={() => setActivePerson(null)}>✕</button>
+             </div>
+          )}
+
           <GenreBar genres={genres} selectedGenre={selectedGenre} onSelect={setSelectedGenre} />
         </div>
 

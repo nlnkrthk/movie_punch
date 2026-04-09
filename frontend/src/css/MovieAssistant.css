@@ -1,0 +1,202 @@
+/* ─── Movie Assistant Main Container ─────────────────────────────────────────── */
+.movie-assistant-container {
+  border: 4px solid var(--neo-fg);
+  background: var(--neo-white);
+  box-shadow: 8px 8px 0px 0px var(--neo-fg);
+  margin-bottom: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.movie-assistant-container.collapsed {
+  height: 64px;
+}
+
+.movie-assistant-container.expanded {
+  height: 380px;
+}
+
+/* ─── Header Elements ─────────────────────────────────────────── */
+.ma-header {
+  padding: 0.75rem 1rem;
+  background: var(--neo-secondary);
+  border-bottom: 4px solid var(--neo-fg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 1rem;
+  letter-spacing: 0.05rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.ma-header:hover {
+  background: var(--neo-accent);
+}
+
+.ma-expand-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--neo-white);
+  border: 3px solid var(--neo-fg);
+  width: 32px;
+  height: 32px;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 1.4rem;
+  line-height: 1;
+  box-shadow: 3px 3px 0px 0px var(--neo-fg);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.ma-header:hover .ma-expand-toggle {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px 0px var(--neo-fg);
+}
+
+.ma-header:active .ma-expand-toggle {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px 0px var(--neo-fg);
+}
+
+/* ─── Chat Area ─────────────────────────────────────────── */
+.ma-chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--neo-bg);
+  /* A slight neo-texture effect */
+  background-image: radial-gradient(var(--neo-highlight) 10%, transparent 11%);
+  background-size: 10px 10px;
+}
+
+/* ─── Input Area ─────────────────────────────────────────── */
+.ma-input-area {
+  display: flex;
+  border-top: 4px solid var(--neo-fg);
+  height: 60px;
+  flex-shrink: 0;
+  background: var(--neo-white);
+}
+
+.ma-input {
+  flex: 1;
+  border: none;
+  padding: 0 1rem;
+  font-weight: 800;
+  font-size: 1rem;
+  outline: none;
+  background: transparent;
+  color: var(--neo-fg);
+}
+
+.ma-input::placeholder {
+  color: #777;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.ma-send-btn {
+  width: 70px;
+  height: 100%;
+  border: none;
+  border-left: 4px solid var(--neo-fg);
+  background: var(--neo-accent);
+  color: var(--neo-fg);
+  font-weight: 900;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.ma-send-btn:hover:not(:disabled) {
+  background: #ffdb4d; /* Slightly lighter accent */
+}
+
+.ma-send-btn:disabled {
+  background: var(--neo-muted);
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+/* ─── Messages ─────────────────────────────────────────── */
+.chat-message-row {
+  display: flex;
+  width: 100%;
+}
+
+.chat-message-row.user-row {
+  justify-content: flex-end;
+}
+
+.chat-message-row.assistant-row {
+  justify-content: flex-start;
+}
+
+.chat-message-bubble {
+  max-width: 80%;
+  padding: 0.75rem 1rem;
+  border: 4px solid var(--neo-fg);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.4;
+  box-shadow: 4px 4px 0 0 var(--neo-fg);
+}
+
+.chat-message-row.user-row .chat-message-bubble {
+  background: var(--neo-accent);
+  border-radius: 2px;
+}
+
+.chat-message-row.assistant-row .chat-message-bubble {
+  background: var(--neo-white);
+  border-radius: 2px;
+}
+
+/* ─── Loading Dots ─────────────────────────────────────────── */
+.ma-loading-indicator {
+  display: flex;
+  gap: 0.4rem;
+  padding: 1rem 1.2rem;
+}
+
+.ma-dot {
+  width: 12px;
+  height: 12px;
+  background: var(--neo-secondary);
+  border: 3px solid var(--neo-fg);
+  animation: bounce 1.2s infinite ease-in-out both;
+}
+
+.ma-dot:nth-child(1) {
+  animation-delay: -0.32s;
+  background: var(--neo-accent);
+}
+.ma-dot:nth-child(2) {
+  animation-delay: -0.16s;
+  background: var(--neo-secondary);
+}
+.ma-dot:nth-child(3) {
+  background: #fff;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { 
+    transform: translateY(0);
+  } 40% { 
+    transform: translateY(-8px);
+  }
+}
+

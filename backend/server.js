@@ -27,8 +27,10 @@ const authRoutes = require("./routes/authRoutes");
 const favoriteRoutes = require("./routes/favoriteRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const watchlistRoutes = require("./routes/watchlistRoutes");
+const assistantRoutes = require("./routes/assistantRoutes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/watchlist", watchlistRoutes);
+app.use("/api/movie-assistant", assistantRoutes);

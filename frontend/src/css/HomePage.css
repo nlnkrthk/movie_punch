@@ -13,6 +13,90 @@
   font-weight: 900;
 }
 
+.homepage-ai-promo {
+  position: relative;
+  border: 4px solid var(--neo-fg);
+  box-shadow: var(--neo-shadow-lg);
+  background-color: var(--neo-secondary);
+  background-image:
+    linear-gradient(rgba(1, 1, 1, 0), rgba(0, 0, 0, 0)),
+    url("../assets/spaceart.png");
+  background-size: cover;
+  background-position: center;
+  padding: 2rem 1rem;
+  display: grid;
+  gap: .55rem;
+  justify-items: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.homepage-ai-promo::before {
+  position: absolute;
+  top: -0.9rem;
+  right: 0.65rem;
+  border: 4px solid var(--neo-fg);
+  background: var(--neo-accent);
+  box-shadow: var(--neo-shadow-sm);
+  padding: 0.05rem 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  transform: rotate(6deg);
+}
+
+.homepage-ai-promo h2 {
+  font-size: clamp(1.3rem, 3.5vw, 2rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1.05;
+  max-width: 18ch;
+  background: var(--neo-accent);
+  color: var(--neo-fg);
+  border: 4px solid var(--neo-fg);
+  box-shadow: 4px 4px 0 0 var(--neo-fg);
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.homepage-ai-promo p {
+  font-weight: 700;
+  max-width: 62ch;
+  line-height: 1.4;
+  background: var(--neo-white);
+  color: var(--neo-fg);
+  border: 4px solid var(--neo-fg);
+  box-shadow: 4px 4px 0 0 var(--neo-fg);
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.homepage-ai-btn {
+  width: fit-content;
+  border: 4px solid var(--neo-fg);
+  background: var(--neo-accent);
+  color: var(--neo-fg);
+  box-shadow: 6px 6px 0 0 var(--neo-fg);
+  padding: 0.9rem 1.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 900;
+  font-size: 1.3rem;
+  margin-top: 1rem;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.homepage-ai-btn:hover {
+  background: var(--neo-secondary);
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 0 var(--neo-fg);
+}
+
+.homepage-ai-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 0 var(--neo-fg);
+}
+
 .homepage-footer {
   margin-top: 0.4rem;
   border: 4px solid var(--neo-fg);
