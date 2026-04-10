@@ -15,7 +15,7 @@ import {
 } from "../services/tmdb"
 import "../css/HomePage.css"
 
-const HERO_ROTATE_MS = 60_000
+const HERO_ROTATE_MS = 10_000
 const API_BASE = "http://localhost:5000/api"
 
 function HomePage() {

@@ -4,26 +4,40 @@ import { useAuth } from "../context/AuthContext";
 import { useMovieContext } from "../context/MovieContext";
 import { getMovieDetails } from "../services/tmdb";
 import ChatMessage from "./ChatMessage";
+import TextType from "./TextType";
 import "../css/MovieAssistant.css";
+import "../css/BB8Cursor.css";
 
 const API_BASE = "http://localhost:5000/api";
 
 function MovieAssistant({ genres = [], onApplyFilters, autoFocus = false }) {
-  const { token, isLoggedIn } = useAuth();
+  const { token, isLoggedIn, user } = useAuth();
   const { favorites } = useMovieContext();
   const [watchlist, setWatchlist] = useState([]);
+
+  const getChatKey = () => `movieAssistantChat_${user?.id || 'guest'}`;
 
   const [isExpanded, setIsExpanded] = useState(autoFocus);
   const inputRef = useRef(null);
   const [inputValue, setInputValue] = useState("");
   const [messages, setMessages] = useState(() => {
     try {
-      const saved = sessionStorage.getItem("movieAssistantChat");
+      const saved = sessionStorage.getItem(getChatKey());
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
     }
   });
+
+  // Hot-swap chat history when the active user profile changes
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(getChatKey());
+      setMessages(saved ? JSON.parse(saved) : []);
+    } catch {
+      setMessages([]);
+    }
+  }, [user?.id]);
   const [isLoading, setIsLoading] = useState(false);
 
   const [populatedFavorites, setPopulatedFavorites] = useState([]);
@@ -73,13 +87,12 @@ function MovieAssistant({ genres = [], onApplyFilters, autoFocus = false }) {
     return () => { cancelled = true; };
   }, [watchlist]);
 
-  // Auto-scroll chat and persist to session storage
   useEffect(() => {
     if (chatAreaRef.current) {
       chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
     }
-    sessionStorage.setItem("movieAssistantChat", JSON.stringify(messages));
-  }, [messages, isExpanded, isLoading]);
+    sessionStorage.setItem(getChatKey(), JSON.stringify(messages));
+  }, [messages, isExpanded, isLoading, user?.id]);
 
   useEffect(() => {
     if (autoFocus && inputRef.current) {
@@ -140,7 +153,21 @@ function MovieAssistant({ genres = [], onApplyFilters, autoFocus = false }) {
   return (
     <div className={`movie-assistant-container ${isExpanded ? "expanded" : "collapsed"}`}>
       <div className="ma-header" onClick={toggleExpand}>
-        <span>AI Movie Assistant</span>
+        <TextType 
+          text="AI Movie Assistant"
+          as="span"
+          typingSpeed={60}
+          pauseDuration={1500}
+          showCursor
+          cursorCharacter={
+            <div className="bb8-cursor-wrap">
+              <div className="bb8"></div>
+            </div>
+          }
+          deletingSpeed={40}
+          loop={false}
+          cursorBlinkDuration={0}
+        />
         <button className="ma-expand-toggle" aria-label="Toggle assistant">
           {isExpanded ? "−" : "+"}
         </button>
@@ -148,7 +175,7 @@ function MovieAssistant({ genres = [], onApplyFilters, autoFocus = false }) {
 
       <div className="ma-chat-area" ref={chatAreaRef}>
         {messages.length === 0 && (
-          <p style={{ opacity: 0.6, fontSize: "0.85rem", textAlign: "center", marginTop: "1rem" }}>
+          <p className="ma-empty-prompt">
             Try asking: "Best sci-fi movies", "funny 90s movies", or "something like my favorites"
           </p>
         )}
@@ -176,6 +203,9 @@ function MovieAssistant({ genres = [], onApplyFilters, autoFocus = false }) {
           placeholder="Ask the movie assistant..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
+          onClick={() => {
+            if (!isExpanded) setIsExpanded(true);
+          }}
           disabled={isLoading}
         />
         <button type="submit" className="ma-send-btn" disabled={isLoading || !inputValue.trim()}>

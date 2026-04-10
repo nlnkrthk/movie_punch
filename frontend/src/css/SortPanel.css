@@ -1,7 +1,7 @@
 .sort-panel {
   border: 4px solid var(--neo-fg);
   box-shadow: var(--neo-shadow-md);
-  background: var(--neo-white);
+  background: var(--neo-accent);
   padding: 0.9rem;
   display: grid;
   gap: 0.7rem;

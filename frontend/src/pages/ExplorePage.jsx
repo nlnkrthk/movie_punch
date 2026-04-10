@@ -6,6 +6,7 @@ import MovieListItem from "../components/MovieListItem"
 import SearchBar from "../components/SearchBar"
 import SortPanel from "../components/SortPanel"
 import MovieAssistant from "../components/MovieAssistant"
+import Shuffle from "../components/Shuffle"
 import { discoverMovies, getGenres, searchMovies, searchPerson } from "../services/tmdb"
 import "../css/ExplorePage.css"
 
@@ -137,7 +138,24 @@ function ExplorePage() {
   return (
     <section className="explore-page">
       <div className="explore-discover-banner neo-texture">
-        <h1>Discover</h1>
+        <h1>
+          <Shuffle
+            text="Discover"
+            shuffleDirection="right"
+            duration={0.7}
+            animationMode="evenodd"
+            shuffleTimes={1}
+            ease="power3.out"
+            stagger={0.04}
+            threshold={0.1}
+            triggerOnce={true}
+            triggerOnHover
+            respectReducedMotion={true}
+            loop={false}
+            loopDelay={0}
+            tag="span"
+          />
+        </h1>
         <p>Search, filter by genre, sort hard, then load more.</p>
       </div>
 

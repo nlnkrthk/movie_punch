@@ -9,33 +9,44 @@
   border: 4px solid var(--neo-fg);
   box-shadow: 8px 8px 0px 0px var(--neo-fg);
   background: var(--neo-muted);
-  background-image: 
-    linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%),
-    linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%);
   background-size: 20px 20px;
   background-position: 0 0, 10px 10px;
-  padding: 1.5rem 1.8rem;
+  padding: 1rem 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .explore-discover-banner h1 {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.8rem, 4vw, 3rem);
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: -0.02em;
-  color: var(--neo-white);
-  text-shadow: 4px 4px 0 var(--neo-fg);
-  line-height: 1.1;
+  color: var(--neo-fg);
+  line-height: 1;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .explore-discover-banner p {
   font-weight: 800;
   font-size: 1.1rem;
-  margin-top: 0.5rem;
+  margin: 0;
   color: var(--neo-fg);
-  background: var(--neo-white);
-  width: fit-content;
+  background: var(--neo-accent);
   border: 3px solid var(--neo-fg);
   padding: 0.3rem 0.6rem;
+  text-align: right;
+}
+
+@media (max-width: 760px) {
+  .explore-discover-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.5rem;
+  }
 }
 
 .explore-left-col {
