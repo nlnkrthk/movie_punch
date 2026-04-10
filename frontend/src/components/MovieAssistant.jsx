@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useMovieContext } from "../context/MovieContext";
@@ -11,6 +12,7 @@ import "../css/BB8Cursor.css";
 const API_BASE = "http://localhost:5000/api";
 
 function MovieAssistant({ genres = [], onApplyFilters, autoFocus = false }) {
+  const navigate = useNavigate();
   const { token, isLoggedIn, user } = useAuth();
   const { favorites } = useMovieContext();
   const [watchlist, setWatchlist] = useState([]);
@@ -106,6 +108,11 @@ function MovieAssistant({ genres = [], onApplyFilters, autoFocus = false }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!inputValue.trim() || isLoading) return;
+
+    if (!isLoggedIn) {
+      navigate('/signin');
+      return;
+    }
 
     if (!isExpanded) setIsExpanded(true);
 

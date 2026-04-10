@@ -1,16 +1,22 @@
 import "../css/Auth.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 function SignIn() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [isShaking, setIsShaking] = useState(false);
 
   const handleChange = (e) => {
+    if (errorMsg) setErrorMsg("");
     setFormData({
       ...formData,
       [e.target.id.replace("signin-", "")]: e.target.value,
@@ -19,22 +25,27 @@ function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMsg("");
+    setIsShaking(false);
 
     try {
       const res = await axios.post(
         "http://localhost:5000/api/auth/login",
         formData
       );
-
-      alert(res.data.message);
+      
+      login(res.data.token, res.data.user);
+      navigate("/");
     } catch (error) {
-      alert(error.response?.data?.message || "Error");
+      setErrorMsg(error.response?.data?.message || "Invalid credentials");
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
     }
   };
 
   return (
     <section className="auth-page">
-      <div className="auth-card">
+      <div className={`auth-card ${errorMsg ? "error" : ""} ${isShaking ? "shake" : ""}`}>
         <span className="auth-badge">Welcome Back</span>
 
         <div className="auth-heading-wrap">
@@ -43,6 +54,12 @@ function SignIn() {
             <span className="auth-heading-accent">In</span>
           </h1>
         </div>
+
+        {errorMsg && (
+          <div className="auth-error-badge">
+            {errorMsg}
+          </div>
+        )}
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="auth-field">

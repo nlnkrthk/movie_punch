@@ -12,6 +12,8 @@ function Account() {
   const mode = location.pathname === "/signup" ? "signup" : "signin"
   const [showSignInPassword, setShowSignInPassword] = useState(false)
   const [showSignUpPassword, setShowSignUpPassword] = useState(false)
+  const [errorMsg, setErrorMsg] = useState("")
+  const [isShaking, setIsShaking] = useState(false)
   const [profilePic] = useState(() => {
     try {
       const stored = localStorage.getItem(`pfp_${user?.id}`)
@@ -33,10 +35,12 @@ function Account() {
   })
 
   function switchMode(nextMode) {
+    if (errorMsg) setErrorMsg("")
     navigate(nextMode === "signup" ? "/signup" : "/signin")
   }
 
   function handleSignInChange(e) {
+    if (errorMsg) setErrorMsg("")
     setSignInData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -44,6 +48,7 @@ function Account() {
   }
 
   function handleSignUpChange(e) {
+    if (errorMsg) setErrorMsg("")
     setSignUpData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -52,23 +57,30 @@ function Account() {
 
   async function handleSignInSubmit(e) {
     e.preventDefault()
+    setErrorMsg("")
+    setIsShaking(false)
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", signInData)
       login(res.data.token, res.data.user)
       navigate("/")
     } catch (error) {
-      alert(error.response?.data?.message || "Error")
+      setErrorMsg(error.response?.data?.message || "Invalid credentials")
+      setIsShaking(true)
+      setTimeout(() => setIsShaking(false), 500)
     }
   }
 
   async function handleSignUpSubmit(e) {
     e.preventDefault()
+    setErrorMsg("")
+    setIsShaking(false)
     try {
       const res = await axios.post("http://localhost:5000/api/auth/signup", signUpData)
-      alert(res.data.message)
       switchMode("signin")
     } catch (error) {
-      alert(error.response?.data?.message || "Error")
+      setErrorMsg(error.response?.data?.message || "Registration failed")
+      setIsShaking(true)
+      setTimeout(() => setIsShaking(false), 500)
     }
   }
 
@@ -132,7 +144,7 @@ function Account() {
   // ─── AUTH FORM VIEW ───
   return (
     <section className="auth-page">
-      <div className={`auth-card ${mode === "signup" ? "auth-signup" : ""}`}>
+      <div className={`auth-card ${mode === "signup" ? "auth-signup" : ""} ${errorMsg ? "error" : ""} ${isShaking ? "shake" : ""}`}>
         <span className="auth-badge">
           {mode === "signin" ? "Welcome Back" : "Let's Go!"}
         </span>
@@ -153,6 +165,12 @@ function Account() {
             Sign Up
           </button>
         </div>
+
+        {errorMsg && (
+          <div className="auth-error-badge">
+            {errorMsg}
+          </div>
+        )}
 
         {mode === "signin" ? (
           <>

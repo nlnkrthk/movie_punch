@@ -284,6 +284,47 @@
   }
 }
 
+/* ───── error states ───── */
+.auth-card.error {
+  border-color: #ff2a2a !important;
+}
+
+.auth-card.error::before {
+  background: #ff2a2a !important;
+  border-color: #ff2a2a !important;
+}
+
+.auth-card.error input,
+.auth-card.error .password-toggle {
+  border-color: #ff2a2a !important;
+}
+
+.auth-card.shake {
+  animation: neo-shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+.auth-error-badge {
+  background: #ff2a2a;
+  color: var(--neo-white);
+  border: 4px solid var(--neo-fg);
+  padding: 0.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  text-align: center;
+  box-shadow: 4px 4px 0 0 #000;
+  transform: rotate(-1deg);
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+@keyframes neo-shake {
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(4px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+  40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
 /* ═══════════════════════════════════════
    PROFILE CARD (logged-in state)
    ═══════════════════════════════════════ */

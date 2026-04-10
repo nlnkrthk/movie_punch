@@ -1,17 +1,21 @@
 import "../css/Auth.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 
 function SignUp() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [isShaking, setIsShaking] = useState(false);
 
   const handleChange = (e) => {
+    if (errorMsg) setErrorMsg("");
     setFormData({
       ...formData,
       [e.target.id.replace("signup-", "")]: e.target.value,
@@ -20,6 +24,8 @@ function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMsg("");
+    setIsShaking(false);
 
     try {
       const res = await axios.post(
@@ -27,15 +33,17 @@ function SignUp() {
         formData
       );
 
-      alert(res.data.message);
+      navigate("/signin");
     } catch (error) {
-      alert(error.response?.data?.message || "Error");
+      setErrorMsg(error.response?.data?.message || "Invalid credentials");
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
     }
   };
 
   return (
     <section className="auth-page">
-      <div className="auth-card auth-signup">
+      <div className={`auth-card auth-signup ${errorMsg ? "error" : ""} ${isShaking ? "shake" : ""}`}>
         <span className="auth-badge">Let's Go!</span>
 
         <div className="auth-heading-wrap">
@@ -45,6 +53,12 @@ function SignUp() {
           </h1>
         </div>
         <p>Create your account and start saving favorites.</p>
+
+        {errorMsg && (
+          <div className="auth-error-badge">
+            {errorMsg}
+          </div>
+        )}
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="auth-field">

@@ -53,6 +53,10 @@ function MovieCard({ movie, onOpenDetails }) {
   function onFavoriteClick(e) {
     e.preventDefault()
     e.stopPropagation()
+    if (!isLoggedIn) {
+      navigate('/signin')
+      return
+    }
     if (favorited) {
       removeFromFavorites(movie.id)
     } else {
@@ -63,7 +67,11 @@ function MovieCard({ movie, onOpenDetails }) {
   async function onWatchlistClick(e) {
     e.preventDefault()
     e.stopPropagation()
-    if (!isLoggedIn || !token || movie?.id == null) return
+    if (!isLoggedIn) {
+      navigate('/signin')
+      return
+    }
+    if (!token || movie?.id == null) return
     try {
       if (inWatchlist) {
         await axios.delete(`${API_BASE}/watchlist/${movie.id}`, {
@@ -123,20 +131,18 @@ function MovieCard({ movie, onOpenDetails }) {
                 className="mc-heart-icon"
               />
             </button>
-            {isLoggedIn ? (
-              <button
-                type="button"
-                className={`mc-watch-btn ${inWatchlist ? "active" : ""}`}
-                onClick={onWatchlistClick}
-                aria-label={inWatchlist ? "Remove from watchlist" : "Add to watchlist"}
-              >
-                <img
-                  src={inWatchlist ? watchlistFilled : watchlistEmpty}
-                  alt={inWatchlist ? "In watchlist" : "Not in watchlist"}
-                  className="mc-watch-icon"
-                />
-              </button>
-            ) : null}
+            <button
+              type="button"
+              className={`mc-watch-btn ${inWatchlist ? "active" : ""}`}
+              onClick={onWatchlistClick}
+              aria-label={inWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+            >
+              <img
+                src={inWatchlist ? watchlistFilled : watchlistEmpty}
+                alt={inWatchlist ? "In watchlist" : "Not in watchlist"}
+                className="mc-watch-icon"
+              />
+            </button>
           </div>
         </div>
         <p className="movie-year">{releaseYear}</p>

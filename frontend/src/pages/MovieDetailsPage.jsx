@@ -196,7 +196,10 @@ function MovieDetailsPage() {
 
   // Watchlist toggle
   const toggleWatchlist = async () => {
-    if (!isLoggedIn) return
+    if (!isLoggedIn) {
+      navigate('/signin')
+      return
+    }
     setWatchlistLoading(true)
     try {
       if (inWatchlist) {
@@ -455,24 +458,28 @@ function MovieDetailsPage() {
             <button
               type="button"
               className="details-btn secondary"
-              onClick={() => (isFav ? removeFromFavorites(movie.id) : addToFavorites(movie))}
+              onClick={() => {
+                if (!isLoggedIn) {
+                  navigate('/signin')
+                  return
+                }
+                isFav ? removeFromFavorites(movie.id) : addToFavorites(movie)
+              }}
             >
               {isFav ? "♥ Favorited" : "♡ Add to Favorites"}
             </button>
-            {isLoggedIn && (
-              <button
-                type="button"
-                className={`details-btn ${inWatchlist ? "watchlist-active" : "watchlist-btn"}`}
-                onClick={toggleWatchlist}
-                disabled={watchlistLoading}
-              >
-                {watchlistLoading
-                  ? "..."
-                  : inWatchlist
-                    ? "✓ On Watchlist"
-                    : "📋 Add to Watchlist"}
-              </button>
-            )}
+            <button
+              type="button"
+              className={`details-btn ${inWatchlist ? "watchlist-active" : "watchlist-btn"}`}
+              onClick={toggleWatchlist}
+              disabled={watchlistLoading}
+            >
+              {watchlistLoading
+                ? "..."
+                : inWatchlist
+                  ? "✓ On Watchlist"
+                  : "📋 Add to Watchlist"}
+            </button>
           </div>
         </div>
       </section>

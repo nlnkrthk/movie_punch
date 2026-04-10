@@ -53,7 +53,11 @@ function MovieListItem({ movie, onOpenDetails }) {
 
   async function toggleWatchlist(e) {
     e.stopPropagation()
-    if (!isLoggedIn || !token || movie?.id == null) return
+    if (!isLoggedIn) {
+      navigate('/signin')
+      return
+    }
+    if (!token || movie?.id == null) return
     try {
       if (inWatchlist) {
         await axios.delete(`${API_BASE}/watchlist/${movie.id}`, {
@@ -99,22 +103,24 @@ function MovieListItem({ movie, onOpenDetails }) {
             className={`movie-list-fav ${favorited ? "active" : ""}`}
             onClick={(e) => {
               e.stopPropagation()
+              if (!isLoggedIn) {
+                navigate('/signin')
+                return
+              }
               favorited ? removeFromFavorites(movie.id) : addToFavorites(movie)
             }}
             aria-label={favorited ? "Remove from favorites" : "Add to favorites"}
           >
             {favorited ? "♥ Favorited" : "♡ Favorite"}
           </button>
-          {isLoggedIn ? (
-            <button
-              type="button"
-              className={`movie-list-watch ${inWatchlist ? "active" : ""}`}
-              onClick={toggleWatchlist}
-              aria-label={inWatchlist ? "Remove from watchlist" : "Add to watchlist"}
-            >
-              {inWatchlist ? "✓ Watchlisted" : "📋 Watchlist"}
-            </button>
-          ) : null}
+          <button
+            type="button"
+            className={`movie-list-watch ${inWatchlist ? "active" : ""}`}
+            onClick={toggleWatchlist}
+            aria-label={inWatchlist ? "Remove from watchlist" : "Add to watchlist"}
+          >
+            {inWatchlist ? "✓ Watchlisted" : "📋 Watchlist"}
+          </button>
         </div>
       </div>
     </article>
