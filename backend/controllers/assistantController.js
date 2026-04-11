@@ -76,13 +76,10 @@ User's Watchlist: ${watchlistContext || "None"}`;
     const responseText = response.data.choices[0].message.content;
 
     try {
-      let cleanText = responseText.trim();
-      if (cleanText.startsWith("\`\`\`json")) {
-          cleanText = cleanText.substring(7);
-          cleanText = cleanText.substring(0, cleanText.lastIndexOf("\`\`\`"));
-      } else if (cleanText.startsWith("\`\`\`")) {
-          cleanText = cleanText.substring(3);
-          cleanText = cleanText.substring(0, cleanText.lastIndexOf("\`\`\`"));
+      let cleanText = responseText;
+      const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+          cleanText = jsonMatch[0];
       }
       
       const jsonResponse = JSON.parse(cleanText);
@@ -99,7 +96,7 @@ User's Watchlist: ${watchlistContext || "None"}`;
       };
       return res.json(finalResponse);
     } catch (parseError) {
-      console.error("Failed to parse NVIDIA NIM output as JSON:", responseText);
+      console.error("Failed to parse NVIDIA NIM output as JSON:", responseText, parseError.message);
       return res.json({
           reply: "I found some movies based on your interests!",
           filters: { person: "", genres: [], sort_by: "popularity", order: "desc", search: "" }
