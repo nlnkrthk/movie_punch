@@ -434,11 +434,8 @@ function MovieDetailsPage() {
               type="button"
               className={`details-btn ${inWatchlist ? "watchlist-active" : "watchlist-btn"}`}
               onClick={toggleWatchlist}
-              disabled={watchlistLoading}
             >
-              {watchlistLoading
-                ? "..."
-                : inWatchlist
+              {inWatchlist
                   ? "✓ On Watchlist"
                   : "📋 Add to Watchlist"}
             </button>
