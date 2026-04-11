@@ -8,7 +8,7 @@ import MovieCarousel from "../components/MovieCarousel"
 import axios from "axios"
 import "../css/MovieDetailsPage.css"
 
-const API_BASE = "http://localhost:5000/api"
+const API_BASE = import.meta.env.VITE_API_BASE_URL
 
 function pickCrew(credits, jobs) {
   const crew = credits?.crew || []

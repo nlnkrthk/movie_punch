@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { lazy, Suspense, useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import axios from "axios"
 import { useAuth } from "../context/AuthContext"
@@ -13,12 +13,13 @@ import {
   getTrendingMovies,
   getUpcomingMovies,
 } from "../services/tmdb"
-import Antigravity from "../components/Antigravity"
 import TextType from "../components/TextType"
 import "../css/HomePage.css"
 
+const Antigravity = lazy(() => import("../components/Antigravity"))
+
 const HERO_ROTATE_MS = 10_000
-const API_BASE = "http://localhost:5000/api"
+const API_BASE = import.meta.env.VITE_API_BASE_URL
 
 function HomePage() {
   const { token, isLoggedIn } = useAuth()
@@ -175,23 +176,25 @@ function HomePage() {
       <HeroBanner movie={heroMovie} />
     <section className="homepage-ai-promo neo-texture" aria-label="AI movie exploration">
         <div className="homepage-ai-bg" style={{ width: '1080px', height: '1080px' }}>
-          <Antigravity
-            count={550}
-            magnetRadius={7}
-            ringRadius={5}
-            waveSpeed={0.4}
-            waveAmplitude={1}
-            particleSize={2.5}
-            lerpSpeed={0.1}
-            color="#5ec997"
-            autoAnimate
-            particleVariance={1}
-            rotationSpeed={0}
-            depthFactor={1}
-            pulseSpeed={3}
-            particleShape="capsule"
-            fieldStrength={15}
-          />
+          <Suspense fallback={<div className="antigravity-loading" />}>
+            <Antigravity
+              count={550}
+              magnetRadius={7}
+              ringRadius={5}
+              waveSpeed={0.4}
+              waveAmplitude={1}
+              particleSize={2.5}
+              lerpSpeed={0.1}
+              color="#5ec997"
+              autoAnimate
+              particleVariance={1}
+              rotationSpeed={0}
+              depthFactor={1}
+              pulseSpeed={3}
+              particleShape="capsule"
+              fieldStrength={15}
+            />
+          </Suspense>
         </div>
         <h2>Chat with an AI assistant to discover films by mood, genre blends, vibes, and hidden gems
           tailored to your taste.</h2>

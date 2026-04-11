@@ -9,7 +9,7 @@ import SearchBar from "../components/SearchBar"
 import GenreBar from "../components/GenreBar"
 import "../css/MySpacePage.css"
 
-const API_BASE = "http://localhost:5000/api"
+const API_BASE = import.meta.env.VITE_API_BASE_URL
 
 function formatActivityDate(value) {
   if (!value) return "Unknown time"

@@ -60,7 +60,7 @@ function Account() {
     setErrorMsg("")
     setIsShaking(false)
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", signInData)
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, signInData)
       login(res.data.token, res.data.user)
       navigate("/")
     } catch (error) {
@@ -75,7 +75,7 @@ function Account() {
     setErrorMsg("")
     setIsShaking(false)
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/signup", signUpData)
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/signup`, signUpData)
       switchMode("signin")
     } catch (error) {
       setErrorMsg(error.response?.data?.message || "Registration failed")

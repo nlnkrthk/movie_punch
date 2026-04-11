@@ -9,7 +9,7 @@ import heartFilled from "../assets/heart-filled.png"
 import watchlistEmpty from "../assets/not-watchlisted.png"
 import watchlistFilled from "../assets/watchlisted.png"
 
-const API_BASE = "http://localhost:5000/api"
+const API_BASE = import.meta.env.VITE_API_BASE_URL
 
 function MovieCard({ movie, onOpenDetails }) {
   const { addToFavorites, removeFromFavorites, isFavorite } = useMovieContext()
