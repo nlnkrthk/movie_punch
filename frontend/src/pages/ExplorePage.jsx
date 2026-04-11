@@ -99,35 +99,52 @@ function ExplorePage() {
   }, [debouncedQuery, page, selectedGenre, sortOption, sortOrder, activePerson])
 
   const handleApplyFilters = async (instructions) => {
-    if (instructions.search !== undefined) {
-      setSearchQuery(instructions.search)
-    }
-    
+    let isPersonFound = false
+
+    // 1. Handle Person
     if (instructions.person) {
       try {
         const pData = await searchPerson(instructions.person)
         if (pData.results && pData.results.length > 0) {
           setActivePerson({ id: pData.results[0].id, name: pData.results[0].name })
-          setSearchQuery("") // Clear text search to enable discovery mode for this person
+          isPersonFound = true
+        } else {
+          setActivePerson(null)
         }
       } catch (err) {
         console.error("Failed to fetch person context for:", instructions.person)
+        setActivePerson(null)
       }
+    } else {
+      setActivePerson(null)
     }
 
-    if (instructions.genres && instructions.genres.length > 0) {
-      // Find the ID of the first requested genre
+    // 2. Handle Search Query
+    // Discover API (used for person/genre) requires search to be empty.
+    if (isPersonFound) {
+      setSearchQuery("")
+    } else if (instructions.search) {
+      setSearchQuery(instructions.search)
+    } else {
+      setSearchQuery("")
+    }
+
+    // 3. Handle Genres
+    // Title search API ignores genres, so we clear it if there's a search term
+    if (instructions.search && !isPersonFound) {
+      setSelectedGenre("")
+    } else if (instructions.genres && instructions.genres.length > 0) {
       const requestedGenreName = instructions.genres[0].toLowerCase()
-      const match = genres.find(g => g.name.toLowerCase() === requestedGenreName)
-      if (match) setSelectedGenre(String(match.id))
-    } else if (instructions.genres && instructions.genres.length === 0) {
+      const match = genres.find((g) => g.name.toLowerCase() === requestedGenreName)
+      setSelectedGenre(match ? String(match.id) : "")
+    } else {
       setSelectedGenre("")
     }
 
+    // 4. Handle Sorting
     if (instructions.sort_by) {
       setSortOption(instructions.sort_by)
     }
-
     if (instructions.order) {
       setSortOrder(instructions.order.toLowerCase())
     }

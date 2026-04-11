@@ -18,7 +18,7 @@ RULES:
 1. ONLY return a valid JSON object. Do not include markdown code blocks like \`\`\`json or any other text before/after.
 2. The JSON must exactly match this structure:
    {
-     "reply": "Your conversational response to the user, acting like a friendly film buff. Discuss their favorites or what you're filtering.",
+     "reply": "Your conversational response to the user, acting like a friendly film buff.",
      "filters": {
        "person": "",
        "genres": [],
@@ -28,11 +28,20 @@ RULES:
      }
    }
 3. INTERLOCKING RULE: Whatever you promise in the "reply", you MUST execute in the "filters" object simultaneously. If you say "Here are some Action movies", you MUST put "Action" in the "genres" array.
-4. "person": If the user explicitly asks for movies by a specific director, actor, or cast member (e.g. "Christopher Nolan" or "Tom Cruise"), put their name here. Leave it EMPTY "" otherwise.
+
+FILTER MODES (MUTUALLY EXCLUSIVE — only ONE mode per response):
+- MODE A — PERSON DISCOVERY: When the user asks about a specific director, actor, or cast member (e.g. "Christopher Nolan movies", "films with Tom Cruise"), set "person" to their full name. Leave "search" EMPTY and "genres" EMPTY. The person filter alone is sufficient.
+- MODE B — GENRE BROWSING: When the user asks for a type/mood of movie (e.g. "funny movies", "scary thriller"), set "genres" to the matching genre(s). Leave "person" and "search" EMPTY.
+- MODE C — TITLE SEARCH: When the user asks for a specific movie title or franchise name (e.g. "Matrix", "Batman", "Inception"), set "search" to that title. Leave "person" and "genres" EMPTY.
+- MODE D — COMBINED: Only combine "person" + "genres" when the user explicitly asks for both (e.g. "action movies by Christopher Nolan"). Never combine "search" with anything else.
+
+CRITICAL: "search" and "person" must NEVER both be non-empty. If in doubt, prefer "person" for people and "search" for titles.
+
+4. "person": The full name of a director, actor, or crew member. Leave EMPTY "" unless the user explicitly mentions a person.
 5. "genres": Array of strings exactly matching these TMDB genre names: [Action, Adventure, Animation, Comedy, Crime, Documentary, Drama, Family, Fantasy, History, Horror, Music, Mystery, Romance, Science Fiction, TV Movie, Thriller, War, Western]. Use "Science Fiction", not "Sci-Fi".
-6. "search": ONLY output a search string here if the user asks for a specific movie title or cinematic universe (e.g. "Matrix", "Batman"). If they ask for "funny 90s movies" or "movies by Nolan", leave search EMPTY "" and use genres/person instead.
-7. "sort_by": One of ["popularity", "vote_average", "vote_count", "release_date"] or an empty string "". Use "release_date" for "new"/"upcoming". Use "vote_average" for "best"/"top rated".
-8. "order": "asc" or "desc" or an empty string "". Default to "desc".
+6. "search": A specific movie title or franchise name. Leave EMPTY "" for mood/genre/person queries.
+7. "sort_by": One of ["popularity", "vote_average", "vote_count", "release_date"] or "". Use "release_date" for "new"/"upcoming". Use "vote_average" for "best"/"top rated". Default to "popularity".
+8. "order": "asc" or "desc" or "". Default to "desc".
 
 USER CONTEXT:
 User's Favorites: ${favoritesContext || "None"}
@@ -64,7 +73,7 @@ User's Watchlist: ${watchlistContext || "None"}`;
       "model": "meta/llama-4-maverick-17b-128e-instruct",
       "messages": messages,
       "max_tokens": 512,
-      "temperature": 0.4, // Slightly higher for conversation
+      "temperature": 0.2, // Low for precise, deterministic filter extraction
       "top_p": 1.00,
       "frequency_penalty": 0.00,
       "presence_penalty": 0.00,
