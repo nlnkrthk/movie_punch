@@ -13,6 +13,8 @@ import {
   getTrendingMovies,
   getUpcomingMovies,
 } from "../services/tmdb"
+import Antigravity from "../components/Antigravity"
+import TextType from "../components/TextType"
 import "../css/HomePage.css"
 
 const HERO_ROTATE_MS = 10_000
@@ -171,14 +173,30 @@ function HomePage() {
   return (
     <section className="homepage">
       <HeroBanner movie={heroMovie} />
-      <section className="homepage-ai-promo neo-texture" aria-label="AI movie exploration">
-        <h2>Explore Movies With AI</h2>
-        <p>
-          Chat with an AI assistant to discover films by mood, genre blends, vibes, and hidden gems
-          tailored to your taste.
-        </p>
+    <section className="homepage-ai-promo neo-texture" aria-label="AI movie exploration">
+        <div className="homepage-ai-bg" style={{ width: '1080px', height: '1080px' }}>
+          <Antigravity
+            count={550}
+            magnetRadius={7}
+            ringRadius={5}
+            waveSpeed={0.4}
+            waveAmplitude={1}
+            particleSize={2.5}
+            lerpSpeed={0.1}
+            color="#5ec997"
+            autoAnimate
+            particleVariance={1}
+            rotationSpeed={0}
+            depthFactor={1}
+            pulseSpeed={3}
+            particleShape="capsule"
+            fieldStrength={15}
+          />
+        </div>
+        <h2>Chat with an AI assistant to discover films by mood, genre blends, vibes, and hidden gems
+          tailored to your taste.</h2>
         <Link to="/explore" state={{ autoExpandChat: true }} className="homepage-ai-btn">
-          Explore Using AI
+          <TextType as="span" text="Explore Using AI" typingSpeed={40} cursorBlinkDuration={0.8} showCursor={true} cursorCharacter="_" />
         </Link>
       </section>
       {loading ? <p className="homepage-loading">Loading sections...</p> : null}

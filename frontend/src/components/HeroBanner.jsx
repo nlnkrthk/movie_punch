@@ -28,8 +28,10 @@ function HeroBanner({ movie }) {
         }
       }}
     >
-      <div className="hero-banner-content">
+      <div className="hero-banner-title">
         <h1>{movie.title}</h1>
+      </div>
+      <div className="hero-banner-desc">
         <p>{movie.overview || "A featured movie spotlight from today's feed."}</p>
       </div>
     </section>
