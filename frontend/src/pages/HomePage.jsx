@@ -1,6 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
-import axios from "axios"
 import { useAuth } from "../context/AuthContext"
 import { useMovieContext } from "../context/MovieContext"
 import HeroBanner from "../components/HeroBanner"
@@ -19,16 +18,14 @@ import "../css/HomePage.css"
 const Antigravity = lazy(() => import("../components/Antigravity"))
 
 const HERO_ROTATE_MS = 10_000
-const API_BASE = import.meta.env.VITE_API_BASE_URL
 
 function HomePage() {
-  const { token, isLoggedIn } = useAuth()
-  const { favorites } = useMovieContext()
+  const { isLoggedIn } = useAuth()
+  const { favorites, watchlist } = useMovieContext()
   const [trending, setTrending] = useState([])
   const [popular, setPopular] = useState([])
   const [topRated, setTopRated] = useState([])
   const [upcoming, setUpcoming] = useState([])
-  const [watchlist, setWatchlist] = useState([])
   const [recommended, setRecommended] = useState([])
   const [loadingRecommended, setLoadingRecommended] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -61,31 +58,6 @@ function HomePage() {
       cancelled = true
     }
   }, [])
-
-  useEffect(() => {
-    if (!isLoggedIn || !token) {
-      setWatchlist([])
-      setRecommended([])
-      return
-    }
-
-    let cancelled = false
-    async function loadWatchlist() {
-      try {
-        const res = await axios.get(`${API_BASE}/watchlist`, {
-          headers: { Authorization: token },
-        })
-        if (!cancelled) setWatchlist(res.data || [])
-      } catch {
-        if (!cancelled) setWatchlist([])
-      }
-    }
-
-    loadWatchlist()
-    return () => {
-      cancelled = true
-    }
-  }, [isLoggedIn, token])
 
   useEffect(() => {
     if (popular.length === 0) return

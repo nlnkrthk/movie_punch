@@ -66,9 +66,8 @@ function toSortedFilteredMovies(movies, { searchQuery, selectedGenre, sortOption
 
 function MySpacePage() {
   const { user, token, isLoggedIn } = useAuth()
-  const { favorites } = useMovieContext()
+  const { favorites, watchlist } = useMovieContext()
   const [activeTab, setActiveTab] = useState("favorites")
-  const [watchlist, setWatchlist] = useState([])
   const [myReviews, setMyReviews] = useState([])
   const [movieMap, setMovieMap] = useState({})
   const [genres, setGenres] = useState([])
@@ -101,7 +100,6 @@ function MySpacePage() {
 
   useEffect(() => {
     if (!isLoggedIn || !token) {
-      setWatchlist([])
       setMyReviews([])
       return
     }
@@ -109,17 +107,14 @@ function MySpacePage() {
     let cancelled = false
     async function loadUserData() {
       try {
-        const [watchlistRes, reviewsRes] = await Promise.all([
-          axios.get(`${API_BASE}/watchlist`, { headers: { Authorization: token } }),
-          axios.get(`${API_BASE}/reviews/me`, { headers: { Authorization: token } }),
-        ])
+        const reviewsRes = await axios.get(`${API_BASE}/reviews/me`, {
+          headers: { Authorization: token },
+        })
         if (!cancelled) {
-          setWatchlist(watchlistRes.data || [])
           setMyReviews(reviewsRes.data || [])
         }
       } catch {
         if (!cancelled) {
-          setWatchlist([])
           setMyReviews([])
         }
       }

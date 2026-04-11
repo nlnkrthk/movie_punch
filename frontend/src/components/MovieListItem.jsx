@@ -1,47 +1,19 @@
 import { useMovieContext } from "../context/MovieContext"
 import { useAuth } from "../context/AuthContext"
-import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import axios from "axios"
 import "../css/MovieListItem.css"
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL
-
 function MovieListItem({ movie, onOpenDetails }) {
-  const { addToFavorites, removeFromFavorites, isFavorite } = useMovieContext()
-  const { token, isLoggedIn } = useAuth()
+  const { addToFavorites, removeFromFavorites, isFavorite, isInWatchlist, addToWatchlist, removeFromWatchlist } = useMovieContext()
+  const { isLoggedIn } = useAuth()
   const navigate = useNavigate()
   const favorited = isFavorite(movie.id)
-  const [inWatchlist, setInWatchlist] = useState(false)
+  const inWatchlist = isInWatchlist(movie.id)
   const year = movie.release_date ? new Date(movie.release_date).getFullYear() : "N/A"
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"
   const poster = movie.poster_path
     ? `https://image.tmdb.org/t/p/w300${movie.poster_path}`
     : "https://via.placeholder.com/300x450?text=No+Poster"
-
-  useEffect(() => {
-    if (!isLoggedIn || !token || movie?.id == null) {
-      setInWatchlist(false)
-      return
-    }
-
-    let cancelled = false
-    async function checkWatchlist() {
-      try {
-        const res = await axios.get(`${API_BASE}/watchlist/check/${movie.id}`, {
-          headers: { Authorization: token },
-        })
-        if (!cancelled) setInWatchlist(!!res.data?.inWatchlist)
-      } catch {
-        if (!cancelled) setInWatchlist(false)
-      }
-    }
-
-    checkWatchlist()
-    return () => {
-      cancelled = true
-    }
-  }, [isLoggedIn, token, movie?.id])
 
   function openDetails() {
     if (typeof onOpenDetails === "function") {
@@ -51,29 +23,16 @@ function MovieListItem({ movie, onOpenDetails }) {
     navigate(`/movie/${movie.id}`)
   }
 
-  async function toggleWatchlist(e) {
+  function toggleWatchlist(e) {
     e.stopPropagation()
     if (!isLoggedIn) {
       navigate('/signin')
       return
     }
-    if (!token || movie?.id == null) return
-    try {
-      if (inWatchlist) {
-        await axios.delete(`${API_BASE}/watchlist/${movie.id}`, {
-          headers: { Authorization: token },
-        })
-        setInWatchlist(false)
-      } else {
-        await axios.post(
-          `${API_BASE}/watchlist`,
-          { movieId: Number(movie.id) },
-          { headers: { Authorization: token } }
-        )
-        setInWatchlist(true)
-      }
-    } catch {
-      // Silent
+    if (inWatchlist) {
+      removeFromWatchlist(movie.id)
+    } else {
+      addToWatchlist(movie.id)
     }
   }
 

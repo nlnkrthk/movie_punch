@@ -88,7 +88,7 @@ function ReviewCard({ review, currentUserId, onDelete }) {
 function MovieDetailsPage() {
   const { movieId } = useParams()
   const navigate = useNavigate()
-  const { addToFavorites, removeFromFavorites, isFavorite } = useMovieContext()
+  const { addToFavorites, removeFromFavorites, isFavorite, isInWatchlist, addToWatchlist, removeFromWatchlist } = useMovieContext()
   const { token, isLoggedIn, user } = useAuth()
 
   const [loading, setLoading] = useState(true)
@@ -99,9 +99,7 @@ function MovieDetailsPage() {
   // Watch providers
   const [providers, setProviders] = useState(null)
 
-  // Watchlist
-  const [inWatchlist, setInWatchlist] = useState(false)
-  const [watchlistLoading, setWatchlistLoading] = useState(false)
+  const inWatchlist = isInWatchlist(movieId)
 
   // Reviews
   const [reviews, setReviews] = useState([])
@@ -160,27 +158,6 @@ function MovieDetailsPage() {
     loadReviews()
   }, [loadReviews])
 
-  // Check watchlist status
-  useEffect(() => {
-    if (!isLoggedIn || !token) {
-      setInWatchlist(false)
-      return
-    }
-    let cancelled = false
-    async function check() {
-      try {
-        const res = await axios.get(`${API_BASE}/watchlist/check/${movieId}`, {
-          headers: { Authorization: token },
-        })
-        if (!cancelled) setInWatchlist(res.data.inWatchlist)
-      } catch {
-        if (!cancelled) setInWatchlist(false)
-      }
-    }
-    check()
-    return () => { cancelled = true }
-  }, [movieId, token, isLoggedIn])
-
   // Check if user already has a review, pre-fill form
   useEffect(() => {
     if (!user || !reviews.length) return
@@ -195,30 +172,15 @@ function MovieDetailsPage() {
   }, [reviews, user])
 
   // Watchlist toggle
-  const toggleWatchlist = async () => {
+  const toggleWatchlist = () => {
     if (!isLoggedIn) {
       navigate('/signin')
       return
     }
-    setWatchlistLoading(true)
-    try {
-      if (inWatchlist) {
-        await axios.delete(`${API_BASE}/watchlist/${movieId}`, {
-          headers: { Authorization: token },
-        })
-        setInWatchlist(false)
-      } else {
-        await axios.post(
-          `${API_BASE}/watchlist`,
-          { movieId: Number(movieId) },
-          { headers: { Authorization: token } }
-        )
-        setInWatchlist(true)
-      }
-    } catch {
-      // Silent
-    } finally {
-      setWatchlistLoading(false)
+    if (inWatchlist) {
+      removeFromWatchlist(movieId)
+    } else {
+      addToWatchlist(movieId)
     }
   }
 
