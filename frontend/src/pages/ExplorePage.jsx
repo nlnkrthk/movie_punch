@@ -30,11 +30,16 @@ function ExplorePage() {
   const autoExpandChat = location.state?.autoExpandChat || false
 
   const [movies, setMovies] = useState([])
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedGenre, setSelectedGenre] = useState("")
-  const [sortOption, setSortOption] = useState("popularity")
-  const [sortOrder, setSortOrder] = useState("desc")
-  const [activePerson, setActivePerson] = useState(null)
+  const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem("ep_searchQuery") || "")
+  const [searchMode, setSearchMode] = useState(() => sessionStorage.getItem("ep_searchMode") || "title")
+  const [selectedGenres, setSelectedGenres] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem("ep_selectedGenres")) || [] } catch { return [] }
+  })
+  const [sortOption, setSortOption] = useState(() => sessionStorage.getItem("ep_sortOption") || "popularity")
+  const [sortOrder, setSortOrder] = useState(() => sessionStorage.getItem("ep_sortOrder") || "desc")
+  const [activePerson, setActivePerson] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem("ep_activePerson")) || null } catch { return null }
+  })
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
   const [genres, setGenres] = useState([])
@@ -43,7 +48,16 @@ function ExplorePage() {
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const loadMoreAnchor = useRef(0)
 
-  const [debouncedQuery, setDebouncedQuery] = useState("")
+  const [debouncedQuery, setDebouncedQuery] = useState(() => sessionStorage.getItem("ep_searchQuery") || "")
+
+  useEffect(() => {
+    sessionStorage.setItem("ep_searchQuery", searchQuery)
+    sessionStorage.setItem("ep_searchMode", searchMode)
+    sessionStorage.setItem("ep_selectedGenres", JSON.stringify(selectedGenres))
+    sessionStorage.setItem("ep_sortOption", sortOption)
+    sessionStorage.setItem("ep_sortOrder", sortOrder)
+    sessionStorage.setItem("ep_activePerson", JSON.stringify(activePerson))
+  }, [searchQuery, searchMode, selectedGenres, sortOption, sortOrder, activePerson])
 
   useEffect(() => {
     const timer = window.setTimeout(() => setDebouncedQuery(searchQuery.trim()), DEBOUNCE_MS)
@@ -60,7 +74,7 @@ function ExplorePage() {
     setPage(1)
     setMovies([])
     setHasMore(true)
-  }, [debouncedQuery, selectedGenre, sortOption, sortOrder, activePerson])
+  }, [debouncedQuery, selectedGenres, sortOption, sortOrder, activePerson, searchMode])
 
   useEffect(() => {
     let cancelled = false
@@ -71,13 +85,54 @@ function ExplorePage() {
 
       try {
         const sortBy = toTmdbSort(sortOption, sortOrder)
-        const data =
-          debouncedQuery.length > 0
-            ? await searchMovies(debouncedQuery, page, sortBy)
-            : await discoverMovies({ page, genreId: selectedGenre, sortBy, personId: activePerson?.id || "" })
+        let data = { results: [], total_pages: 0 }
+
+        // Only explicitly allow upcoming movies if they sort by release date
+        const today = new Date().toISOString().split("T")[0]
+        const lteDate = sortOption === "release_date" ? "" : today
+
+        if (debouncedQuery.length > 0) {
+          if (searchMode === "person") {
+            const pData = await searchPerson(debouncedQuery)
+            if (pData.results && pData.results.length > 0) {
+              const bestMatch = pData.results[0]
+              data = await discoverMovies({
+                page,
+                genreId: selectedGenres.join(","),
+                sortBy,
+                personId: bestMatch.id,
+                lteDate,
+              })
+              // Sync the active person badge visually
+              if (!cancelled && (!activePerson || activePerson.id !== bestMatch.id)) {
+                setActivePerson({ id: bestMatch.id, name: bestMatch.name })
+              }
+            } else {
+              if (!cancelled && activePerson) setActivePerson(null)
+            }
+          } else {
+            // Traditional Title Search
+            data = await searchMovies(debouncedQuery, page, sortBy)
+            if (!cancelled && activePerson) setActivePerson(null) // title search overrides person
+          }
+        } else {
+          data = await discoverMovies({
+            page,
+            genreId: selectedGenres.join(","),
+            sortBy,
+            personId: activePerson?.id || "",
+            lteDate,
+          })
+        }
 
         if (cancelled) return
-        const incoming = data.results || []
+        let incoming = data.results || []
+
+        // In-memory filter for Title searches which don't support API level date bounds
+        if (sortOption !== "release_date") {
+          incoming = incoming.filter((m) => !m.release_date || m.release_date <= today)
+        }
+
         setMovies((prev) => (page === 1 ? incoming : [...prev, ...incoming]))
         setHasMore(page < (data.total_pages || 1) && incoming.length > 0)
       } catch {
@@ -96,7 +151,7 @@ function ExplorePage() {
     return () => {
       cancelled = true
     }
-  }, [debouncedQuery, page, selectedGenre, sortOption, sortOrder, activePerson])
+  }, [debouncedQuery, page, selectedGenres, sortOption, sortOrder, activePerson, searchMode])
 
   const handleApplyFilters = async (instructions) => {
     let isPersonFound = false
@@ -132,13 +187,17 @@ function ExplorePage() {
     // 3. Handle Genres
     // Title search API ignores genres, so we clear it if there's a search term
     if (instructions.search && !isPersonFound) {
-      setSelectedGenre("")
+      setSelectedGenres([])
     } else if (instructions.genres && instructions.genres.length > 0) {
-      const requestedGenreName = instructions.genres[0].toLowerCase()
-      const match = genres.find((g) => g.name.toLowerCase() === requestedGenreName)
-      setSelectedGenre(match ? String(match.id) : "")
+      const mappedIds = instructions.genres
+        .map((gName) => {
+          const match = genres.find((g) => g.name.toLowerCase() === gName.toLowerCase())
+          return match ? String(match.id) : null
+        })
+        .filter(Boolean)
+      setSelectedGenres(mappedIds)
     } else {
-      setSelectedGenre("")
+      setSelectedGenres([])
     }
 
     // 4. Handle Sorting
@@ -201,7 +260,12 @@ function ExplorePage() {
         <MovieAssistant genres={genres} onApplyFilters={handleApplyFilters} autoFocus={autoExpandChat} />
         
         <div className="explore-top-sticky">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          <SearchBar 
+            value={searchQuery} 
+            onChange={setSearchQuery} 
+            searchMode={searchMode} 
+            onSearchModeChange={setSearchMode} 
+          />
           
           {activePerson && (
              <div className="explore-person-badge">
@@ -210,7 +274,7 @@ function ExplorePage() {
              </div>
           )}
 
-          <GenreBar genres={genres} selectedGenre={selectedGenre} onSelect={setSelectedGenre} />
+          <GenreBar genres={genres} selectedGenres={selectedGenres} onSelect={setSelectedGenres} />
         </div>
 
         {error ? <p className="explore-error">{error}</p> : null}

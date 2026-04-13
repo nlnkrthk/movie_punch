@@ -9,7 +9,7 @@ function SortPanel({ sortOption, sortOrder, onSortOptionChange, onSortOrderChang
         <select value={sortOption} onChange={(e) => onSortOptionChange(e.target.value)}>
           <option value="popularity">Popularity</option>
           <option value="release_date">Release Date</option>
-          <option value="vote_average">Vote Average</option>
+          <option value="vote_average">Rating</option>
           <option value="vote_count">Vote Count</option>
           <option value="title">Title</option>
           <option value="runtime">Runtime</option>

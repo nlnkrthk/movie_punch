@@ -47,13 +47,14 @@ export const searchMovies = (query, page = 1, sortBy = "popularity.desc") =>
 export const searchPerson = (query, page = 1) =>
   request("/search/person", { query, page, include_adult: false })
 
-export const discoverMovies = ({ page = 1, genreId = "", personId = "", sortBy = "popularity.desc" }) =>
+export const discoverMovies = ({ page = 1, genreId = "", personId = "", sortBy = "popularity.desc", lteDate = "" }) =>
   request("/discover/movie", {
     page,
     with_genres: genreId || undefined,
     with_people: personId || undefined,
     sort_by: sortBy,
     include_adult: false,
+    "primary_release_date.lte": lteDate || undefined,
   })
 
 export const getGenres = () => request("/genre/movie/list")

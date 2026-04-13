@@ -1,7 +1,7 @@
 import "../css/GenreBar.css"
 import { useMemo, useRef } from "react"
 
-function GenreBar({ genres, selectedGenre, onSelect }) {
+function GenreBar({ genres, selectedGenres = [], onSelect }) {
   const scrollerRef = useRef(null)
   const rafRef = useRef(0)
 
@@ -20,6 +20,21 @@ function GenreBar({ genres, selectedGenre, onSelect }) {
 
   const stopAutoScroll = () => {
     cancelAnimationFrame(rafRef.current)
+  }
+
+  const handleToggle = (id) => {
+    if (id === "") {
+      onSelect([])
+      return
+    }
+    const current = Array.isArray(selectedGenres) ? [...selectedGenres] : []
+    const index = current.indexOf(String(id))
+    if (index > -1) {
+      current.splice(index, 1)
+    } else {
+      current.push(String(id))
+    }
+    onSelect(current)
   }
 
   return (
@@ -44,8 +59,8 @@ function GenreBar({ genres, selectedGenre, onSelect }) {
       >
       <button
         type="button"
-        className={`genre-pill ${selectedGenre === "" ? "active" : ""}`}
-        onClick={() => onSelect("")}
+        className={`genre-pill ${selectedGenres.length === 0 ? "active" : ""}`}
+        onClick={() => handleToggle("")}
       >
         All
       </button>
@@ -53,8 +68,8 @@ function GenreBar({ genres, selectedGenre, onSelect }) {
         <button
           type="button"
           key={genre.id}
-          className={`genre-pill ${String(selectedGenre) === String(genre.id) ? "active" : ""}`}
-          onClick={() => onSelect(String(genre.id))}
+          className={`genre-pill ${selectedGenres.includes(String(genre.id)) ? "active" : ""}`}
+          onClick={() => handleToggle(String(genre.id))}
         >
           {genre.name}
         </button>

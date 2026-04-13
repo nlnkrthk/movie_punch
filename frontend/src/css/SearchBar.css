@@ -1,6 +1,13 @@
 .searchbar-wrap {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 0.45rem;
+}
+
+.searchbar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .searchbar-label {
@@ -8,6 +15,37 @@
   text-transform: uppercase;
   font-weight: 900;
   letter-spacing: 0.08em;
+}
+
+.searchbar-mode-toggle {
+  display: flex;
+  gap: 0;
+  border: 2px solid var(--neo-fg);
+  background: var(--neo-white);
+  box-shadow: 2px 2px 0 0 #000;
+}
+
+.mode-btn {
+  background: transparent;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.2s;
+}
+
+.mode-btn:first-child {
+  border-right: 2px solid var(--neo-fg);
+}
+
+.mode-btn.active {
+  background: var(--neo-secondary);
+}
+
+.mode-btn:hover:not(.active) {
+  background: #f0f0f0;
 }
 
 .searchbar-input {

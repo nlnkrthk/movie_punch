@@ -1,0 +1,104 @@
+.server-wakeup-overlay {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.server-wakeup-popup {
+  background: var(--neo-accent);
+  border: 4px solid #000;
+  box-shadow: var(--neo-shadow-md);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 380px;
+  transition: background-color 0.3s ease;
+}
+
+/* Custom class for when the status is awake */
+.server-wakeup-popup.awake {
+  background: #a7f3d0; /* Pastel green */
+  color: #000;
+}
+
+/* Custom class for when the status is error */
+.server-wakeup-popup.error {
+  background: #000;
+  color: #fff;
+}
+
+.wakeup-spinner {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border: 4px solid #000;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.server-wakeup-popup.error .wakeup-spinner {
+  border-color: #fff;
+  border-top-color: transparent;
+}
+
+.wakeup-error-icon {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  background: #fff;
+  color: #000;
+  border-radius: 50%;
+}
+
+.wakeup-success-icon {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+  background: #000;
+  color: #a7f3d0;
+  border-radius: 50%;
+}
+
+.wakeup-text h3 {
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.wakeup-text p {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

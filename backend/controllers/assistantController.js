@@ -40,7 +40,7 @@ CRITICAL: "search" and "person" must NEVER both be non-empty. If in doubt, prefe
 4. "person": The full name of a director, actor, or crew member. Leave EMPTY "" unless the user explicitly mentions a person.
 5. "genres": Array of strings exactly matching these TMDB genre names: [Action, Adventure, Animation, Comedy, Crime, Documentary, Drama, Family, Fantasy, History, Horror, Music, Mystery, Romance, Science Fiction, TV Movie, Thriller, War, Western]. Use "Science Fiction", not "Sci-Fi".
 6. "search": A specific movie title or franchise name. Leave EMPTY "" for mood/genre/person queries.
-7. "sort_by": One of ["popularity", "vote_average", "vote_count", "release_date"] or "". Use "release_date" for "new"/"upcoming". Use "vote_average" for "best"/"top rated". Default to "popularity".
+7. "sort_by": One of ["popularity", "vote_average", "vote_count", "release_date"] or "". Use "release_date" for "new"/"upcoming". Use "vote_average" for "best"/"top rated"/"rating"/"highest rated". Default to "popularity".
 8. "order": "asc" or "desc" or "". Default to "desc".
 
 USER CONTEXT:

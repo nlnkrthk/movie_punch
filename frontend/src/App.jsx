@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import NavBar from './components/NavBar'
+import ServerWakeup from './components/ServerWakeup'
 import './css/App.css'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -13,6 +14,7 @@ function App() {
   return (
     <div className="app-shell neo-grid">
       <NavBar />
+      <ServerWakeup />
       <main className="app-main">
         <Suspense fallback={<div className="loading-fallback neo-texture">Loading...</div>}>
           <Routes>
