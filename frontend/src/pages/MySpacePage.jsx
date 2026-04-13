@@ -24,7 +24,7 @@ function formatActivityDate(value) {
   })
 }
 
-function toSortedFilteredMovies(movies, { searchQuery, selectedGenre, sortOption, sortOrder }) {
+function toSortedFilteredMovies(movies, { searchQuery, selectedGenres, sortOption, sortOrder }) {
   const query = searchQuery.trim().toLowerCase()
   const direction = sortOrder === "asc" ? 1 : -1
 
@@ -32,9 +32,15 @@ function toSortedFilteredMovies(movies, { searchQuery, selectedGenre, sortOption
     const title = (movie.title || "").toLowerCase()
     const overview = (movie.overview || "").toLowerCase()
     const matchesQuery = !query || title.includes(query) || overview.includes(query)
+    
+    // movie must have ALL selected genres (AND logic like TMDB comma separation)
     const matchesGenre =
-      !selectedGenre ||
-      (movie.genres || []).some((genre) => String(genre.id) === String(selectedGenre))
+      !selectedGenres ||
+      selectedGenres.length === 0 ||
+      selectedGenres.every((selectedId) =>
+        (movie.genres || []).some((g) => String(g.id) === String(selectedId))
+      )
+      
     return matchesQuery && matchesGenre
   })
 
@@ -72,10 +78,19 @@ function MySpacePage() {
   const [movieMap, setMovieMap] = useState({})
   const [genres, setGenres] = useState([])
   const [loadingMovies, setLoadingMovies] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedGenre, setSelectedGenre] = useState("")
-  const [sortOption, setSortOption] = useState("newest")
-  const [sortOrder, setSortOrder] = useState("desc")
+  const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem("ms_searchQuery") || "")
+  const [selectedGenres, setSelectedGenres] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem("ms_selectedGenres")) || [] } catch { return [] }
+  })
+  const [sortOption, setSortOption] = useState(() => sessionStorage.getItem("ms_sortOption") || "newest")
+  const [sortOrder, setSortOrder] = useState(() => sessionStorage.getItem("ms_sortOrder") || "desc")
+
+  useEffect(() => {
+    sessionStorage.setItem("ms_searchQuery", searchQuery)
+    sessionStorage.setItem("ms_selectedGenres", JSON.stringify(selectedGenres))
+    sessionStorage.setItem("ms_sortOption", sortOption)
+    sessionStorage.setItem("ms_sortOrder", sortOrder)
+  }, [searchQuery, selectedGenres, sortOption, sortOrder])
   const [profilePic, setProfilePic] = useState(() => {
     try {
       const storedUser = JSON.parse(localStorage.getItem("user") || "null")
@@ -97,6 +112,17 @@ function MySpacePage() {
     }
   })
   const [editingBio, setEditingBio] = useState(false)
+
+  // Sync profile data when user changes so it isn't stuck on the stale initialization
+  useEffect(() => {
+    if (user?.id) {
+      setProfilePic(localStorage.getItem(`pfp_${user.id}`) || null)
+      setBio(localStorage.getItem(`bio_${user.id}`) || "")
+    } else {
+      setProfilePic(null)
+      setBio("")
+    }
+  }, [user?.id])
 
   useEffect(() => {
     if (!isLoggedIn || !token) {
@@ -205,21 +231,21 @@ function MySpacePage() {
     () =>
       toSortedFilteredMovies(favoriteRows, {
         searchQuery,
-        selectedGenre,
+        selectedGenres,
         sortOption,
         sortOrder,
       }),
-    [favoriteRows, searchQuery, selectedGenre, sortOption, sortOrder]
+    [favoriteRows, searchQuery, selectedGenres, sortOption, sortOrder]
   )
   const filteredWatchlistMovies = useMemo(
     () =>
       toSortedFilteredMovies(watchlistRows, {
         searchQuery,
-        selectedGenre,
+        selectedGenres,
         sortOption,
         sortOrder,
       }),
-    [watchlistRows, searchQuery, selectedGenre, sortOption, sortOrder]
+    [watchlistRows, searchQuery, selectedGenres, sortOption, sortOrder]
   )
 
   const activityItems = useMemo(() => {
@@ -403,7 +429,7 @@ function MySpacePage() {
               <div className="my-space-filters-search">
                 <SearchBar value={searchQuery} onChange={setSearchQuery} />
               </div>
-              <GenreBar genres={genres} selectedGenre={selectedGenre} onSelect={setSelectedGenre} />
+              <GenreBar genres={genres} selectedGenres={selectedGenres} onSelect={setSelectedGenres} />
             </div>
             <aside className="my-space-sort-aside">
               <h3>Sort</h3>
@@ -415,7 +441,7 @@ function MySpacePage() {
               >
                 <option value="newest">Newest Added</option>
                 <option value="release_date">Release Date</option>
-                <option value="vote_average">Vote Average</option>
+                <option value="vote_average">Rating</option>
                 <option value="vote_count">Vote Count</option>
                 <option value="popularity">Popularity</option>
                 <option value="title">Title</option>
